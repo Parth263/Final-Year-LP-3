@@ -46,3 +46,5 @@ What happened in the last step:
    so remaining capacity (rem) becomes 0 kg.
 
 5. But you still earned fractional value: (20/22) × 77 ≈ 70 units.
+
+// ratio is the “value per unit weight” — the greedy metric used for fractional knapsack
