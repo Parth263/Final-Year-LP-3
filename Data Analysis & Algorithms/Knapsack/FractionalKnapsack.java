@@ -1,5 +1,6 @@
 import java.util.Arrays;
 
+//to store item value and weight
 class Item {
     int value, weight;
 
@@ -23,11 +24,11 @@ public class FractionalKnapsack {
         for (Item item : items) {
             if (capacity >= item.weight) {
                 // Take the whole item
-                capacity -= item.weight;
-                totalValue += item.value;
+                capacity = capacity - item.weight;
+                totalValue = totalValue + item.value;
             } else {
                 // Take fractional part of the item
-                totalValue += item.value * ((double) capacity / item.weight);
+                totalValue = totalValue + item.value * ((double) capacity / item.weight);
                 break; // Knapsack is full
             }
         }
