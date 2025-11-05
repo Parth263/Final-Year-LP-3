@@ -62,4 +62,9 @@ Recursive           O(n)                   Due to recursive call stack depth.
 
 Iterative           O(1)                   Uses only 3 integer variables regardless of n.
 
+Applications :-
+1. Used in algorithms like Fibonacci Search and Dynamic Programming to optimize recursive solutions and reduce computation time.
+2. Helps find correction levels in stock trading.
+3. Used to create visually pleasing proportions through the Golden Ratio (≈1.618), which is derived from Fibonacci numbers
+4. Seen in flower petals, pinecones, sunflowers, and shell spirals, where the arrangement follows Fibonacci patterns for optimal growth.
 
