@@ -1,155 +1,104 @@
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class NQueens {
 
-    // board[r][c] == 1 means a queen is placed at (r,c)
-    private int[][] board;
-    private int n;
-    private int fixedRow = -1;
-    private int fixedCol = -1;
-    private boolean solved = false;
+    static int N;
+    static int[][] board;
+    static int fixedRow = -1;
+    static int fixedCol = -1;
 
-    public NQueens(int n) {
-        this.n = n;
-        board = new int[n][n];
-        for (int[] row : board) Arrays.fill(row, 0);
+    // Function to print the board 
+    //Iterates every row i and every column j, printing the integer in board[i][j] followed by a space
+    static void printBoard() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println(); // move to next line (after printing one row)
     }
 
-    // Place the fixed queen (0-based). Returns false if out of bounds or conflict.
-    public boolean placeFixedQueen(int r, int c) {
-        if (r < 0 || r >= n || c < 0 || c >= n) return false;
-        board[r][c] = 1;
-        fixedRow = r;
-        fixedCol = c;
-        // check that the fixed queen doesn't conflict with itself (trivial) or make impossible immediately
-        return true;
-    }
-
-    // Check if it's safe to place a queen at (row, col)
-    private boolean isSafe(int row, int col) {
-        // Check column above
+    // Function to check if placing a queen at (row, col) is safe
+    static boolean isSafe(int row, int col) {
+        // Check column
         for (int i = 0; i < row; i++) {
-            if (board[i][col] == 1) return false;
+            if (board[i][col] == 1)
+                return false;
         }
 
         // Check upper-left diagonal
-        int i = row, j = col;
-        while (i >= 0 && j >= 0) {
-            if (board[i][j] == 1) return false;
-            i--; j--;
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j] == 1)
+                return false;
         }
 
         // Check upper-right diagonal
-        i = row; j = col;
-        while (i >= 0 && j < n) {
-            if (board[i][j] == 1) return false;
-            i--; j++;
+        for (int i = row - 1, j = col + 1; i >= 0 && j < N; i--, j++) {
+            if (board[i][j] == 1)
+                return false;
         }
 
         return true;
     }
 
-    // Backtracking: try to place queens row by row, skipping fixed row
-    private void solveFromRow(int row) {
-        if (solved) return; // stop after finding first solution
-
-        if (row == n) {
-            // all rows handled -> solution found
-            solved = true;
-            return;
+    // place queens row by row, starting from the top to bottom
+    static boolean solveNQueens(int row) {
+        // solution found no more rows left to process.
+        if (row == N) {
+            return true;
         }
 
-        // if this row has the pre-placed queen, skip to next row
+        // If current row already has the fixed queen, skip it move on to the next row
         if (row == fixedRow) {
-            solveFromRow(row + 1);
-            return;
+            return solveNQueens(row + 1);
         }
 
-        for (int col = 0; col < n; col++) {
+        // Try placing a queen in each column (Each row can only have one queen)
+        for (int col = 0; col < N; col++) {
             if (isSafe(row, col)) {
-                board[row][col] = 1;
-                solveFromRow(row + 1);
-                if (solved) return;
-                board[row][col] = 0; // backtrack
+                board[row][col] = 1; // if safe Place queen
+
+                // Recurse for next row
+                if (solveNQueens(row + 1))
+                    return true;
+
+                // Backtrack
+                board[row][col] = 0;
             }
         }
-    }
 
-    // Public solve method
-    public boolean solve() {
-        // quick validation: fixed queen must not conflict with any previous queen in earlier rows
-        if (fixedRow != -1) {
-            // check if fixed queen conflicts with any other pre-existing queen (none exist except itself)
-            // But it might make impossible: we'll detect that during backtracking.
-        }
-        solveFromRow(0);
-        return solved;
-    }
-
-    // Print board
-    public void printBoard() {
-        if (!solved) {
-            System.out.println("No solution found.");
-            return;
-        }
-        for (int r = 0; r < n; r++) {
-            StringBuilder sb = new StringBuilder();
-            for (int c = 0; c < n; c++) {
-                sb.append(board[r][c] == 1 ? " Q" : " .");
-            }
-            System.out.println(sb.toString());
-        }
-    }
-
-    // Print positions (row -> col) 1-based for readability
-    public void printPositions() {
-        System.out.print("Positions (row->col, 1-based): ");
-        boolean first = true;
-        for (int r = 0; r < n; r++) {
-            for (int c = 0; c < n; c++) {
-                if (board[r][c] == 1) {
-                    if (!first) System.out.print(", ");
-                    System.out.print((r+1) + "->" + (c+1));
-                    first = false;
-                }
-            }
-        }
-        System.out.println();
+        // No valid column found
+        return false;
     }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter board size n: ");
-        int n = sc.nextInt();
 
-        NQueens solver = new NQueens(n);
+        System.out.print("Enter size of board (N): ");
+        N = sc.nextInt();
+        board = new int[N][N];
 
-        System.out.print("Do you want to fix the first queen position? (y/n): ");
-        char ch = sc.next().toLowerCase().charAt(0);
+        // Take fixed queen input
+        System.out.print("Enter fixed queen row (1-based): ");
+        fixedRow = sc.nextInt() - 1;
+        System.out.print("Enter fixed queen column (1-based): ");
+        fixedCol = sc.nextInt() - 1;  //If user enters 2, internally it becomes 1 (second column).
 
-        if (ch == 'y') {
-            System.out.print("Enter fixed queen row (1-based): ");
-            int r = sc.nextInt();
-            System.out.print("Enter fixed queen column (1-based): ");
-            int c = sc.nextInt();
-            // convert to 0-based
-            boolean ok = solver.placeFixedQueen(r - 1, c - 1);
-            if (!ok) {
-                System.out.println("Invalid fixed queen coordinates.");
-                sc.close();
-                return;
-            }
-        }
+        // Place the first queen
+        board[fixedRow][fixedCol] = 1;
 
-        boolean found = solver.solve();
-        if (found) {
-            System.out.println("\nSolution found:");
-            solver.printBoard();
-            solver.printPositions();
+        // Start solving
+        boolean solved = solveNQueens(0);
+
+        // Output result
+        if (solved) {
+            System.out.println("\nFinal N-Queens Matrix:");
+            printBoard();
         } else {
-            System.out.println("\nNo solution exists with the given fixed queen (or for this n).");
+            System.out.println("No solution exists for this placement.");
         }
+
         sc.close();
     }
 }
