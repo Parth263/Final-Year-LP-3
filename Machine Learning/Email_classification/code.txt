@@ -1,0 +1,247 @@
+Great — below is a **clear, exam-ready, line-by-line explanation** of the typical Jupyter notebook you’re using for the spam-detection practical (KNN + SVM).
+I’ll show the code (the minimal form you said you’ll keep) and then explain each line or small block in plain language you can say in the viva.
+
+# Code (clean, minimal)
+
+```python
+# 1. Imports
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import scale
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn import metrics
+
+# 2. Load data
+df = pd.read_csv('emails.csv')
+
+# 3. Basic cleaning
+df = df.dropna()
+if 'Email No.' in df.columns:
+    df = df.drop(['Email No.'], axis=1)
+
+# 4. Prepare features and labels
+X = df.drop(['Prediction'], axis=1)
+y = df['Prediction']
+
+# 5. Scale features
+X_scaled = scale(X)
+
+# 6. Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.3, random_state=42
+)
+
+# 7. K-NN
+knn = KNeighborsClassifier(n_neighbors=7)
+knn.fit(X_train, y_train)
+y_pred_knn = knn.predict(X_test)
+
+# 8. Evaluate K-NN
+print("KNN Accuracy:", metrics.accuracy_score(y_test, y_pred_knn))
+print("KNN Confusion Matrix:\n", metrics.confusion_matrix(y_test, y_pred_knn))
+
+# 9. SVM
+svm = SVC(kernel='linear', probability=True)
+svm.fit(X_train, y_train)
+y_pred_svm = svm.predict(X_test)
+
+# 10. Evaluate SVM
+print("SVM Accuracy:", metrics.accuracy_score(y_test, y_pred_svm))
+print("SVM Confusion Matrix:\n", metrics.confusion_matrix(y_test, y_pred_svm))
+```
+
+---
+
+# Line-by-line explanation (what each line/block does and what to say in viva)
+
+### Block 1 — Imports
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import scale
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn import metrics
+```
+
+* `import pandas as pd`: loads pandas, the library for tabular data. Use `pd` shorthand.
+* `import numpy as np`: loads NumPy for numeric operations (arrays, math functions).
+* `from sklearn.preprocessing import scale`: imports a quick scaler that standardizes features (zero mean, unit variance).
+* `from sklearn.model_selection import train_test_split`: function to split data into train and test sets.
+* `from sklearn.neighbors import KNeighborsClassifier`: the KNN classifier implementation.
+* `from sklearn.svm import SVC`: Support Vector Classifier implementation (SVM).
+* `from sklearn import metrics`: utilities to evaluate model performance (accuracy, confusion matrix, etc.).
+
+**What to say:** “I import pandas and numpy for data handling, sklearn functions for splitting and evaluation, and the two classifiers (KNN, SVM). I also import `scale` to standardize numeric features.”
+
+---
+
+### Block 2 — Load data
+
+```python
+df = pd.read_csv('emails.csv')
+```
+
+* Reads the CSV file named `emails.csv` into a DataFrame called `df`.
+
+**What to say:** “This reads the dataset into memory as a DataFrame so I can inspect and manipulate rows and columns easily.”
+
+---
+
+### Block 3 — Basic cleaning
+
+```python
+df = df.dropna()
+if 'Email No.' in df.columns:
+    df = df.drop(['Email No.'], axis=1)
+```
+
+* `df.dropna()` removes rows that contain any missing values. (Quick approach; other options are imputation.)
+* The `if` guard checks for an ID column named `Email No.` and removes it if present because IDs don’t help prediction.
+
+**What to say:** “I remove missing rows to avoid errors and drop any identifier column because it’s not predictive. In a real scenario you might impute missing values instead of dropping them if many exist.”
+
+---
+
+### Block 4 — Prepare features and labels
+
+```python
+X = df.drop(['Prediction'], axis=1)
+y = df['Prediction']
+```
+
+* `X` is the features matrix: all columns except the target.
+* `y` is the label/target vector — the `Prediction` column which indicates spam/not-spam.
+
+**What to say:** “I separate inputs (X) and output (y). The model will learn mapping from X to y.”
+
+---
+
+### Block 5 — Scale features
+
+```python
+X_scaled = scale(X)
+```
+
+* Standardizes each feature column: subtract mean and divide by standard deviation.
+* Returns a NumPy array of scaled features.
+
+**Why important:** “KNN and SVM are sensitive to feature scales because they use distances or margins. Scaling makes features comparable and prevents one large-range feature from dominating.”
+
+**Pitfall to mention:** “Prefer scaling inside a pipeline or fit scaler on training data only to avoid data leakage — `scale(X)` scales with info from entire dataset, which is acceptable in many small practicals but not ideal in strict modeling pipelines.”
+
+---
+
+### Block 6 — Split data
+
+```python
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.3, random_state=42
+)
+```
+
+* Splits data into training (70%) and testing (30%).
+* `random_state=42` ensures results are reproducible.
+
+**What to say:** “We keep test data unseen during training to evaluate generalization. Random state fixes the split so results are consistent between runs.”
+
+**Better practice note:** “Use `stratify=y` to preserve class balance if classes are imbalanced.”
+
+---
+
+### Block 7 — Train K-NN
+
+```python
+knn = KNeighborsClassifier(n_neighbors=7)
+knn.fit(X_train, y_train)
+y_pred_knn = knn.predict(X_test)
+```
+
+* `KNeighborsClassifier(n_neighbors=7)`: constructs the model using 7 neighbors. `k` influences bias/variance.
+* `fit(...)` stores the training data (KNN is a lazy learner; fit just stores data).
+* `predict(...)` finds nearest neighbors in the training set for each test point and predicts majority class.
+
+**What to say:** “For each test instance KNN finds the 7 closest training samples and uses their majority label to predict. We could tune `n_neighbors` to get the best result.”
+
+---
+
+### Block 8 — Evaluate K-NN
+
+```python
+print("KNN Accuracy:", metrics.accuracy_score(y_test, y_pred_knn))
+print("KNN Confusion Matrix:\n", metrics.confusion_matrix(y_test, y_pred_knn))
+```
+
+* `accuracy_score`: fraction of correct predictions.
+* `confusion_matrix`: 2×2 matrix showing true negatives (TN), false positives (FP), false negatives (FN), true positives (TP).
+
+**What to say:** “I compute accuracy and the confusion matrix. For spam detection, accuracy alone isn’t sufficient — we should also look at precision and recall to understand false alarms vs missed spam.”
+
+---
+
+### Block 9 — Train SVM
+
+```python
+svm = SVC(kernel='linear', probability=True)
+svm.fit(X_train, y_train)
+y_pred_svm = svm.predict(X_test)
+```
+
+* `SVC(kernel='linear', probability=True)` creates SVM classifier with a linear kernel and enables probability estimates.
+* `fit(...)` trains the SVM (finds the optimal separating hyperplane).
+* `predict(...)` classifies test instances using the learned boundary.
+
+**What to say:** “SVM finds the hyperplane that maximizes the margin between classes. We chose a linear kernel here; if the data is non-linear, we could use `kernel='rbf'`.”
+
+---
+
+### Block 10 — Evaluate SVM
+
+```python
+print("SVM Accuracy:", metrics.accuracy_score(y_test, y_pred_svm))
+print("SVM Confusion Matrix:\n", metrics.confusion_matrix(y_test, y_pred_svm))
+```
+
+* Same evaluation metrics for SVM as for KNN.
+
+**What to say:** “We compare these metrics between KNN and SVM to see which model performs better. Also check precision/recall/F1 and ROC AUC for a fuller picture.”
+
+---
+
+# Extra short explanations you can memorize for viva
+
+* **Why split data?** — To measure how well model generalizes to unseen data.
+* **Why scale?** — KNN uses distance; SVM uses dot-products/margins — both need comparable feature scales.
+* **Why drop ID columns?** — ID is unique to each row and does not generalize; it leaks no predictive pattern.
+* **Why `random_state`?** — For reproducible experiments — same split every time.
+* **Choose `n_neighbors`** — smaller k → more variance, larger k → more bias. Typically try several values and pick by validation.
+* **SVM vs KNN** — SVM is usually better with high-dimensional data and is faster at prediction when dataset is large (after training), while KNN is simple but costly at prediction time.
+
+---
+
+# Common viva questions (short answers)
+
+Q: *Why not use the entire dataset for training?*
+A: Because we need unseen data to evaluate generalization — testing on training data gives overoptimistic performance.
+
+Q: *What is a confusion matrix?*
+A: A 2×2 table: [[TN, FP],[FN, TP]] summarizing true/false positive/negative counts, helps compute precision/recall.
+
+Q: *What would you change if data is textual (raw email text)?*
+A: Convert text to numeric features using `CountVectorizer` or `TfidfVectorizer` (bag-of-words / TF-IDF) before scaling/ML. Possibly reduce dimensionality (SVD/PCA) for KNN.
+
+Q: *How to choose best hyperparameters?*
+A: Use cross-validation with `GridSearchCV` or `RandomizedSearchCV` to test parameter combinations and pick the one that maximizes chosen metric (e.g., F1 for imbalanced classes).
+
+---
+
+If you want, next I can:
+
+* Provide the **same line-by-line annotated code but with brief one-line viva answers** for each line (very compact for memorization), **or**
+* Walk through your exact uploaded notebook cell-by-cell (I’ll read its content and give specific annotations and what outputs mean).
+
+Which one would you like next?

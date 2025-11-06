@@ -1,0 +1,528 @@
+Hello\! I can certainly explain this Jupyter Notebook for your practical exam.
+
+First, a Jupyter Notebook is an interactive tool that lets you run code in small blocks called **"cells"**. This is very useful for data analysis because you can write a bit of code, run it, and see the result immediately before moving to the next step.
+
+Here is a block-by-block explanation of your code in simple language.
+
+-----
+
+### **Cell 1: Importing Libraries**
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+```
+
+  * **What it does:** This block imports the "libraries" (toolkits) you need for the project. Think of it like getting your tools ready before you start building.
+  * **`import pandas as pd`**: Imports the **pandas** library, which is the main tool for working with data in tables (like an Excel sheet). We give it the short nickname `pd`.
+  * **`import numpy as np`**: Imports the **NumPy** library, which is used for heavy-duty math and number calculations. We give it the nickname `np`.
+  * **`import matplotlib.pyplot as plt`**: Imports the **Matplotlib** library, which is used to make graphs and charts. We give it the nickname `plt`.
+
+-----
+
+### **Cell 2: Loading the Data**
+
+```python
+uber = pd.read_csv('uber.csv')
+```
+
+  * **What it does:** This line uses pandas (`pd`) to read your data file named `uber.csv`.
+  * It loads all the information from that file into a variable called `uber`. This `uber` variable is now a "DataFrame," which is just what pandas calls a data table.
+
+-----
+
+### **Cell 3: Peeking at the Data**
+
+```python
+uber.head()
+```
+
+  * **What it does:** This command shows you the **first 5 rows** of your `uber` data table.
+  * **Why:** It's a quick way to check that your data loaded correctly and to see what the columns are (like `fare_amount`, `pickup_datetime`, etc.) and what the data looks like.
+  * **Output:** The table you see below the cell is the output, showing those first 5 rows.
+
+-----
+
+### **Cell 4: Getting Data Information**
+
+```python
+uber.info()
+```
+
+  * **What it does:** This command gives you a technical summary of your entire data table.
+  * **Output Explanation:**
+      * `RangeIndex: 200000 entries`: This means you have **200,000 rows** of data.
+      * `Data columns (total 9 columns)`: You have **9 columns**.
+      * The table below that shows:
+          * **Non-Null Count:** How many cells in that column are *not* empty. You can see `dropoff_longitude` and `dropoff_latitude` have 199,999 non-null values, which means they each have 1 missing value.
+          * **Dtype:** What type of data is in the column. `float64` is a number with decimals, `int64` is a whole number, and `object` is usually text.
+
+-----
+
+### **Cell 5: Counting Missing Values**
+
+```python
+uber.isnull().sum()
+```
+
+  * **What it does:** This command specifically counts how many "null" (empty) values are in *each* column.
+  * **Output Explanation:** It confirms what we saw in `.info()`: `dropoff_longitude` has 1 missing value, and `dropoff_latitude` has 1 missing value. All other columns have 0 missing values.
+
+-----
+
+### **Cell 6: Cleaning the Data (Part 1)**
+
+```python
+uber_2 = uber.drop(['Unnamed: 0','key'],axis=1)
+uber_2.dropna(axis=0,inplace=True)
+```
+
+  * **What it does:** This block starts cleaning the data.
+  * **Line 1:** `uber_2 = uber.drop(...)` creates a *new* data table called `uber_2`. This new table is a copy of `uber` but with the `Unnamed: 0` and `key` columns **dropped** (removed). We do this because those columns are just IDs and aren't useful for predicting the fare. (`axis=1` just means "drop a column").
+  * **Line 2:** `uber_2.dropna(...)` finds any row that has a missing ("na") value and **drops** (removes) that entire row. This is how we fix the 2 missing values we found earlier. (`axis=0` means "drop a row", and `inplace=True` means it makes the change directly to `uber_2`).
+
+-----
+
+### **Cell 7: Checking the Cleaning**
+
+```python
+uber_2.isnull().sum()
+```
+
+  * **What it does:** This is the same command as Cell 5, but now we run it on our new, cleaned table, `uber_2`.
+  * **Output Explanation:** It now shows 0 for all columns, which means our data has no more missing values.
+
+-----
+
+### **Cell 8: Defining the Haversine Function**
+
+```python
+def haversine (lon_1, lon_2, lat_1, lat_2):
+
+    lon_1, lon_2, lat_1, lat_2 = map(np.radians, [lon_1, lon_2, lat_1, lat_2])  #Degrees to Radians
+
+    diff_lon = lon_2 - lon_1
+    diff_lat = lat_2 - lat_1
+
+    km = 2 * 6371 * np.arcsin(np.sqrt(np.sin(diff_lat/2.0)**2 +
+                                      np.cos(lat_1) * np.cos(lat_2) * np.sin(diff_lon/2.0)**2))
+    return km
+```
+
+  * **What it does:** This block defines a new, custom function called `haversine`. A function is like a mini-program or a recipe that you can use many times.
+  * **Purpose:** The Haversine formula is a famous math formula used to calculate the **distance between two points on a sphere** (like the Earth) using their latitude and longitude.
+  * The code converts the degrees to radians (a unit for angles), calculates the differences in latitude and longitude, and then plugs them into the formula to find the distance in kilometers (`km`). `6371` is the radius of the Earth in km.
+
+-----
+
+### **Cell 9: Creating the 'Distance' Column**
+
+```python
+uber_2['Distance']= haversine(uber_2['pickup_longitude'],uber_2['dropoff_longitude'],
+                             uber_2['pickup_latitude'],uber_2['dropoff_latitude'])
+
+uber_2['Distance'] = uber_2['Distance'].astype(float).round(2)    # Round-off Optional
+```
+
+  * **What it does:** This block uses the `haversine` function we just created.
+  * **Line 1:** It creates a **new column** in the `uber_2` table, which it names 'Distance'.
+  * **Line 1-2:** For every row, it takes the pickup and dropoff coordinates, gives them to the `haversine` function, and stores the resulting distance (in km) in the new 'Distance' column.
+  * **Line 4:** This line just cleans up the new column by rounding the distance to 2 decimal places.
+
+-----
+
+### **Cell 10: Peeking at the Data (with Distance)**
+
+```python
+uber_2.head()
+```
+
+  * **What it does:** This is the same `.head()` command as before.
+  * **Output Explanation:** You can now see the new **'Distance' column** on the far right of the table, showing the calculated distance for the first 5 rides.
+
+-----
+
+### **Cell 11: Plotting Fare vs. Distance (Initial)**
+
+```python
+plt.scatter(uber_2['Distance'], uber_2['fare_amount'])
+plt.xlabel("Distance")
+plt.ylabel("fare_amount")
+```
+
+  * **What it does:** This block creates a **scatter plot** (a graph of dots) to see the relationship between 'Distance' (on the x-axis) and 'fare\_amount' (on the y-axis).
+  * **Why:** This helps us visually check the data for "outliers"—data points that look strange or wrong. For example, a ride with 0 distance but a high fare, or a long-distance ride with a $0 fare.
+  * **Output:** The graph shows the dots. You can see most dots form a line (longer distance = higher fare), but there are some weird points far away from the main cluster.
+
+-----
+
+### **Cell 12: Cleaning the Data (Part 2 - Outliers)**
+
+```python
+uber_2.drop(uber_2[uber_2['Distance'] > 60].index, inplace = True)
+uber_2.drop(uber_2[uber_2['Distance'] == 0].index, inplace = True)
+uber_2.drop(uber_2[uber_2['fare_amount'] == 0].index, inplace = True)
+uber_2.drop(uber_2[uber_2['fare_amount'] < 0].index, inplace = True)
+```
+
+  * **What it does:** Based on what we saw in the plot, this block removes those strange outliers.
+  * It **drops** any row where:
+      * The `Distance` is greater than 60km (likely unrealistic).
+      * The `Distance` is exactly 0 (no ride taken).
+      * The `fare_amount` is 0.
+      * The `fare_amount` is negative (impossible).
+
+-----
+
+### **Cell 13: Cleaning the Data (Part 3 - More Outliers)**
+
+```python
+uber_2.drop(uber_2[(uber_2['fare_amount']>100) & (uber_2['Distance']<1)].index, inplace = True )
+uber_2.drop(uber_2[(uber_2['fare_amount']<100) & (uber_2['Distance']>100)].index, inplace = True )
+```
+
+  * **What it does:** This removes even more specific outliers.
+  * **Line 1:** Drops any ride where the fare was *over $100* AND (`&`) the distance was *less than 1km*.
+  * **Line 2:** Drops any ride where the fare was *less than $100* AND (`&`) the distance was *over 100km*.
+  * Both of these are likely data errors.
+
+-----
+
+### **Cell 14: Checking Data After Cleaning**
+
+```python
+uber_2.info()
+```
+
+  * **What it does:** Runs the `.info()` command again.
+  * **Output Explanation:** The number of entries has now gone down to **193,481**. This shows that we have successfully "cleaned" the data by removing all the missing and outlier rows.
+
+-----
+
+### **Cell 15: Plotting Fare vs. Distance (Cleaned)**
+
+```python
+plt.scatter(uber_2['Distance'], uber_2['fare_amount'])
+plt.xlabel("Distance")
+plt.ylabel("fare_amount")
+```
+
+  * **What it does:** This creates the *same* scatter plot as in Cell 11, but this time using our fully cleaned data.
+  * **Output Explanation:** The plot looks much better now. The relationship is clearer, and most of the "impossible" dots are gone. It looks like a clean, positive relationship.
+
+-----
+
+### **Cell 16: Feature Engineering (from Date)**
+
+```python
+uber_2['pickup_datetime'] = pd.to_datetime(uber_2['pickup_datetime'])
+# ... (lines for Year, Month, Day, Day of Week, Hour) ...
+day_map = {0:'Mon',1:'Tue',2:'Wed',3:'Thu',4:'Fri',5:'Sat',6:'Sun'}
+uber_2['Day of Week'] = uber_2['Day of Week'].map(day_map)
+uber_2['counter'] = 1
+```
+
+  * **What it does:** This block is **Feature Engineering**. It extracts new, useful features (columns) from the `pickup_datetime` column. A computer model can't understand a date as text, but it can understand numbers like "year" or "hour."
+  * **`pd.to_datetime(...)`**: Converts the date column from text into a special datetime object that pandas can work with.
+  * **`... .apply(lambda time: ...)`**: These lines create new columns for **'Year'**, **'Month'**, **'Day'**, **'Day of Week'** (as a number 0-6), and **'Hour'**.
+  * **`day_map = ...`**: This creates a mapping to turn the day-of-week numbers into names (e.g., 0 becomes 'Mon').
+  * **`uber_2['counter'] = 1`**: This is a simple trick for later. It adds a new column called 'counter' and puts the number `1` in it for every single row. This makes it very easy to count rows (e.g., `sum()` of this column = total number of trips).
+
+-----
+
+### **Cell 17: Feature Engineering (Location)**
+
+```python
+uber_2['pickup'] = uber_2['pickup_latitude'].astype(str) + "," + uber_2['pickup_longitude'].astype(str)
+uber_2['drop off'] = uber_2['dropoff_latitude'].astype(str) + "," + uber_2['dropoff_longitude'].astype(str)
+```
+
+  * **What it does:** This creates two new columns, `pickup` and `drop off`, by simply joining the latitude and longitude numbers together as text. This isn't likely used for the model but could be useful for other types of analysis or mapping.
+
+-----
+
+### **Cell 18: Peeking at the Final Data**
+
+```python
+uber_2.head()
+```
+
+  * **What it does:** A final check on the first 5 rows.
+  * **Output Explanation:** You can now see all the new columns we created: `Distance`, `Year`, `Month`, `Day`, `Day of Week`, `Hour`, `counter`, `pickup`, and `drop off`. The data is now fully prepared.
+
+-----
+
+### **Cell 19: Bar Chart - Trips per Year**
+
+```python
+no_of_trips = []
+year = [2009, 2010, 2011, 2012, 2013, 2014, 2015]
+# ... (loop and plotting) ...
+plt.bar(year, no_of_trips, color=colors)
+```
+
+  * **What it does:** This block counts the total number of trips for each year and creates a **bar chart** to show it.
+  * **The loop:** `for i in range(2009, 2016):`...
+  * **Inside the loop:** `x = uber_2.loc[uber_2['Year'] == i, 'counter'].sum()`
+      * This finds all rows where the 'Year' is `i` (e.g., 2009).
+      * Then it takes the 'counter' column for those rows (which is all 1s) and adds them up (`.sum()`).
+      * This gives the total number of trips for that year.
+  * **`plt.bar(...)`**: This command plots the `year` list against the `no_of_trips` list as a bar chart.
+  * **Output:** The bar chart shows you the total number of trips in each year.
+
+-----
+
+### **Cell 20: Bar Chart - Trips per Month**
+
+```python
+no_of_trips = []
+month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+# ... (loop and plotting) ...
+plt.bar(month, no_of_trips, color=colors)
+```
+
+  * **What it does:** This is the *exact same logic* as the last cell, but it loops through each **month** (1 to 12) instead of the year.
+  * **Output:** A bar chart showing which months (across all years) are the busiest or slowest.
+
+-----
+
+### **Cell 21: Bar Chart - Trips per Day of Week**
+
+```python
+no_of_trips = []
+day = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+# ... (loop and plotting) ...
+plt.bar(day, no_of_trips, color=colors)
+```
+
+  * **What it does:** Again, the *exact same logic*, but it loops through each **day of the week** (0 to 6).
+  * **Output:** A bar chart showing which days of the week are the busiest.
+
+-----
+
+### **Cell 22: Line Chart - Trips Over Time**
+
+```python
+year_vs_trips = uber_2.groupby(['Year','Month']).agg(...)
+# ...
+year_vs_trips.plot(kind='line',x='month_year',y='no_of_trips', ...)
+```
+
+  * **What it does:** This block creates a **line chart** to see the trend of trips over time, month by month.
+  * **`uber_2.groupby(...)`**: This groups the data by *both* 'Year' and 'Month' (e.g., Jan 2009, Feb 2009, etc.) and counts the trips for each.
+  * **`year_vs_trips.plot(...)`**: This plots the result as a line chart, which is great for seeing trends.
+  * **Output:** The line chart shows the number of trips growing over the years from 2009 to 2015.
+
+-----
+
+### **Cell 23: Preparing Data for Heatmap**
+
+```python
+import seaborn as sns
+# ...
+df_h = df_h.groupby(['Hour', 'Day of Week_num']).mean()
+df_h = df_h.unstack(level=0)
+```
+
+  * **What it does:** This block prepares the data to be shown in a "heatmap" (a colored grid).
+  * **`import seaborn as sns`**: Imports the **Seaborn** library, another plotting tool that's good for more advanced charts.
+  * **`df_h.groupby(...)`**: This groups the data by the *hour* and *day of the week* and calculates the **average distance** for each slot (e.g., the average distance for all rides on Mondays at 9 AM).
+  * **`df_h.unstack(...)`**: This pivots that data into a grid, with days as rows and hours as columns.
+
+-----
+
+### **Cell 24: Plotting the Heatmap**
+
+```python
+fig, ax = plt.subplots(figsize=(24, 7))
+sns.heatmap(df_h, cmap="Reds", ...)
+# ... (labeling) ...
+plt.show()
+```
+
+  * **What it does:** This block uses Seaborn (`sns`) to draw the **heatmap** from the grid we just made.
+  * **`sns.heatmap(df_h, cmap="Reds")`**: This draws the grid. `cmap="Reds"` means the colors will be in shades of red.
+  * **Output:** The grid shows the average ride distance. **Darker red** means a *longer* average distance, and **lighter red** means a *shorter* average distance. It's useful for seeing patterns, like longer commutes during morning rush hour on weekdays.
+
+-----
+
+### **Cell 25: Calculating Statistics (Fare)**
+
+```python
+import statistics as st
+print("Mean of fare prices is % s " % (st.mean(uber_2['fare_amount'])))
+# ... (Median, Standard Deviation) ...
+```
+
+  * **What it does:** This block calculates and prints three basic statistics for the `fare_amount` column.
+  * **Mean:** The "average" fare (total fare divided by number of trips).
+  * **Median:** The "middle" fare, if you lined up all the fares from smallest to largest.
+  * **Standard Deviation:** A measure of how spread out the fares are. A low number means most fares are close to the average; a high number means they are very spread out.
+
+-----
+
+### **Cell 26: Calculating Statistics (Distance)**
+
+```python
+import statistics as st
+print("Mean of Distance is % s " % (st.mean(uber_2['Distance'])))
+# ... (Median, Standard Deviation) ...
+```
+
+  * **What it does:** The exact same as the last cell, but for the `Distance` column.
+  * **Output:** Prints the mean, median, and standard deviation for the ride distances.
+
+-----
+
+### **Cell 27: Finding Correlations**
+
+```python
+corr = uber_2.select_dtypes(include='number').corr()
+corr.style.background_gradient(cmap='BuGn')
+```
+
+  * **What it does:** This calculates the **correlation** between all the numerical columns.
+  * **Output Explanation:** This shows a grid where each cell has a number from -1 to 1.
+      * **Close to 1 (dark green):** Strong *positive* correlation. When one value goes up, the other tends to go up. You can see **`fare_amount` and `Distance` have a correlation of 0.89**, which is very strong and makes sense (longer ride = higher fare).
+      * **Close to -1:** Strong *negative* correlation. When one goes up, the other goes down.
+      * **Close to 0 (light color):** No real relationship.
+
+-----
+
+### **Cell 28: Setting up Model Variables (X and y)**
+
+```python
+X = uber_2['Distance'].values.reshape(-1, 1)        #Independent Variable
+y = uber_2['fare_amount'].values.reshape(-1, 1)     #Dependent Variable
+```
+
+  * **What it does:** This prepares the data for the machine learning model.
+  * **`X` (Independent Variable):** This is the **feature**, or what we use to make the prediction. Here, we are *only* using `Distance` to predict the fare.
+  * **`y` (Dependent Variable):** This is the **target**, or what we are *trying to predict*. Here, it's the `fare_amount`.
+
+-----
+
+### **Cell 29: Scaling the Data**
+
+```python
+from sklearn.preprocessing import StandardScaler
+std = StandardScaler()
+y_std = std.fit_transform(y)
+x_std = std.fit_transform(X)
+```
+
+  * **What it does:** This process, called **"standardization"** or "scaling," changes the `X` and `y` values so they are all on a similar scale (with a mean of 0 and a standard deviation of 1).
+  * **Why:** Many machine learning models work much better and faster when the data is scaled like this.
+  * **Output:** The numbers printed are the new, scaled versions of your fare and distance data.
+
+-----
+
+### **Cell 30: Splitting the Data (Train/Test)**
+
+```python
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(x_std, y_std, test_size=0.2, random_state=0)
+```
+
+  * **What it does:** This is a crucial step. It splits all your data (`x_std` and `y_std`) into two groups:
+    1.  **A Training Set (X\_train, y\_train):** This is 80% of your data (`test_size=0.2` means 20% for testing). The model will **learn** from this data.
+    2.  **A Test Set (X\_test, y\_test):** This is the other 20% of the data. The model will *never* see this data while learning. We use it at the end to **test** how good the model is at predicting new, unseen data.
+  * `random_state=0` just makes sure the split is "random" in the same way every time you run it, so you can get repeatable results.
+
+-----
+
+### **Cell 31: Training the Linear Regression Model**
+
+```python
+from sklearn.linear_model import LinearRegression
+l_reg = LinearRegression()
+l_reg.fit(X_train, y_train)
+
+print("Training set score: {:.2f}".format(l_reg.score(X_train, y_train)))
+print("Test set score: {:.7f}".format(l_reg.score(X_test, y_test)))
+```
+
+  * **What it does:** This block creates and trains your prediction model.
+  * **`l_reg = LinearRegression()`**: This creates a **Linear Regression** model. This type of model tries to find the best possible straight line to explain the relationship between X (distance) and y (fare).
+  * **`l_reg.fit(X_train, y_train)`**: This is the **training** step. The model "looks" at all the training data and "learns" the best straight line to fit it.
+  * **Output (The R-squared Score):**
+      * `Training set score: 0.80`: This is the **R-squared** score. It means the model's line "explains" about 80% of the fare on the data it trained on.
+      * `Test set score: 0.8006071`: This is the R-squared score for the *test data*. It's great that this number is very close to the training score\! It means the model is **good at generalizing** and isn't just "memorizing" the training data.
+
+-----
+
+### **Cell 32: Install Tabulate**
+
+```python
+%pip install tabulate
+```
+
+  * **What it does:** This is a setup command. It just installs a small helper library called `tabulate` that is used in the next step to print a clean-looking table.
+
+-----
+
+### **Cell 33: Making Predictions**
+
+```python
+y_pred = l_reg.predict(X_test)
+df = {'Actual': y_test, 'Predicted': y_pred}
+from tabulate import tabulate
+print(tabulate(df, headers = 'keys', tablefmt = 'psql'))
+```
+
+  * **What it does:** This block uses the *trained model* (`l_reg`) to make predictions.
+  * **`y_pred = l_reg.predict(X_test)`**: This is the "prediction" step. It takes the distances from the test set (`X_test`) and uses the model's learned line to guess what the fare should be for each. These guesses are stored in `y_pred`.
+  * **`print(tabulate(df, ...))`**: This prints a table comparing the **Actual** (real) fares from the test set to the **Predicted** (guessed) fares from the model.
+  * **Output:** The table shows the real values next to the model's predictions.
+
+-----
+
+### **Cell 34: Checking the Model's Error**
+
+```python
+from sklearn import metrics
+print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
+print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+```
+
+  * **What it does:** This prints different "error scores" to measure, on average, how wrong the model's predictions were. **Lower numbers are better here.**
+  * **Mean Absolute Error (MAE):** The average error in your predictions (e.g., on average, the prediction was "0.23" units off from the actual scaled fare).
+  * **Mean Squared Error (MSE):** The average of the *squared* errors. This punishes large errors more heavily.
+  * **Root Mean Squared Error (RMSE):** The square root of the MSE. This is a very common metric to see how good a model is, in the same units as the target (fare).
+
+-----
+
+### **Cell 35: Finding the Model's Formula**
+
+```python
+print(l_reg.intercept_)
+print(l_reg.coef_)
+```
+
+  * **What it does:** A linear regression model is just a formula for a line: **y = mx + c**. This prints the 'm' and 'c' values the model learned.
+  * **`l_reg.intercept_`**: This is the **'c'** (the intercept). It's the predicted fare when the distance is 0. The output `[-0.00016705]` is very close to 0, which makes sense.
+  * **`l_reg.coef_`**: This is the **'m'** (the coefficient, or slope). The output `[[0.89176936]]` is the "m". It means that for every 1 unit of (scaled) distance you add, the (scaled) fare goes up by 0.89.
+
+-----
+
+### **Cell 36: Visualizing the Model (Incomplete Cell)**
+
+```python
+plt.subplot(2, 2, 1)
+plt.scatter(X_train, y_train, color = 'red')
+plt.plot(X_train, l_reg.predict(X_train), color ="blue")
+# ... (and so on) ...
+```
+
+  * **What it does:** This final block (which seems incomplete in the file) plots the model's results.
+  * **Plot 1 (Training Set):**
+      * `plt.scatter(X_train, y_train, ...)`: Plots the **training data** (the red dots).
+      * `plt.plot(X_train, l_reg.predict(X_train), ...)`: Draws the **blue line** that the model learned from this data.
+  * **Plot 2 (Test Set):**
+      * `plt.scatter(X_test, y_test, ...)`: Plots the **test data** (the red dots it has *never* seen).
+      * `plt.plot(X_train, l_reg.predict(X_train), ...)`: Draws that *same blue line* over the new test data.
+  * **Why:** This is the final check. You get to *see* how well the line fits both the data it learned from (training) and the new data (test). If the line fits both sets of dots well, you have a good model.
+
+Good luck with your practical exam\!

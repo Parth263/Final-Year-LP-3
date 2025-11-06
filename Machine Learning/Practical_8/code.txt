@@ -1,0 +1,295 @@
+Of course\! This is a great practical. The last one was about predicting a *number* (Uber fare), which is a **regression** problem. This one is about predicting a *category* (Leave or Stay), which is a **classification** problem.
+
+We're using a Neural Network for this, which is a powerful model inspired by the human brain.
+
+Here is the block-by-block explanation for your bank customer practical.
+
+-----
+
+### **Cell 1: Markdown (The Problem)**
+
+```markdown
+# Given a bank customer, build a neural network-based classifier...
+...
+# 5. Print the accuracy score and confusion matrix.
+```
+
+  * **What it does:** This is a "Markdown" cell, not code. It's just text. It explains the goal of your practical, which is to build a classifier to predict if a customer will leave the bank ("churn"). It lists the 5 steps you need to follow.
+
+-----
+
+### **Cell 2: Importing Libraries**
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+import tensorflow
+from tensorflow import keras
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+```
+
+  * **What it does:** This block imports all the toolkits (libraries) you'll need.
+  * **Data Tools:** `pandas` (for data tables) and `numpy` (for math).
+  * **Plotting Tools:** `matplotlib` and `seaborn` (for making graphs).
+  * **Scikit-learn (`sklearn`) Tools:**
+      * `train_test_split`: To split your data into training and testing groups.
+      * `StandardScaler`: To normalize your data (a key part of Step 3).
+      * `confusion_matrix`, `accuracy_score`, `classification_report`: To check how good your model is (Step 5).
+  * **Neural Network (`tensorflow` & `keras`) Tools:**
+      * `Sequential`: The "container" for your neural network.
+      * `Dense`, `Dropout`: These are the "building blocks" or "layers" of your network.
+
+-----
+
+### **Cell 3: Read the Dataset (Step 1)**
+
+```python
+df = pd.read_csv('Churn_Modelling.csv')
+```
+
+  * **What it does:** This line uses pandas (`pd`) to read the `Churn_Modelling.csv` file and load all its data into a variable (a "DataFrame") called `df`.
+  * **This completes Step 1.**
+
+-----
+
+### **Cell 4: Peeking at the Data**
+
+```python
+df.head()
+```
+
+  * **What it does:** Shows the first 5 rows of your data table `df`.
+  * **Why:** This is a quick check to make sure the data loaded correctly and to see the column names (like `CreditScore`, `Geography`, `Age`, `Exited`, etc.). The `Exited` column (with 1s and 0s) is what we want to predict.
+
+-----
+
+### **Cell 5: Getting Data Information**
+
+```python
+df.info()
+```
+
+  * **What it does:** This gives you a technical summary of your 10,000 rows of data.
+  * **Why:** It's a very important check. It shows:
+    1.  **Missing Values:** All columns show "10000 non-null", which means there is **no missing data**. This is great\!
+    2.  **Data Types (`Dtype`):** It shows that `Geography` and `Gender` are "object" (text). A neural network can't understand text; it only understands numbers. We will have to fix this.
+
+-----
+
+### **Cell 6: Distinguish Feature and Target Set (Step 2 - Part 1)**
+
+```python
+X = df.iloc[:, 3:13]
+y = df.iloc[:, 13]
+```
+
+  * **What it does:** This separates your data into `X` (features) and `y` (target).
+  * **`X` (Features):** `iloc[:, 3:13]` selects all rows (`:`) and columns from index 3 up to (but not including) 13. This gets all the useful feature columns (`CreditScore`, `Geography`, `Age`, `Balance`, etc.) and *skips* the useless ones at the beginning (`RowNumber`, `CustomerId`, `Surname`).
+  * **`y` (Target):** `iloc[:, 13]` selects all rows (`:`) and only the 13th column, which is `Exited`. This is the "answer" we want the model to learn to predict.
+
+-----
+
+### **Cell 7: Handling Text Data (One-Hot Encoding)**
+
+```python
+X = pd.get_dummies(X, columns=['Geography', 'Gender'], drop_first=True)
+```
+
+  * **What it does:** This fixes the "object" (text) problem we found in Cell 5. It converts the `Geography` and `Gender` columns into numbers.
+  * **How:** It uses a technique called **One-Hot Encoding**.
+      * For `Gender` (Male/Female), it creates one new column `Gender_Male`. If the value is 1, the person is Male. If 0, they are Female.
+      * For `Geography` (France/Spain/Germany), it creates two new columns, `Geography_Germany` and `Geography_Spain`.
+          * If `Geography_Germany`=1, they are from Germany.
+          * If `Geography_Spain`=1, they are from Spain.
+          * If *both* are 0, they are from France.
+  * **Why:** Now our `X` table contains *only numbers*, which the neural network can understand.
+
+-----
+
+### **Cell 8: Divide into Training and Test Sets (Step 2 - Part 2)**
+
+```python
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+```
+
+  * **What it does:** This splits all of your data (`X` and `y`) into two separate groups.
+      * **Training Set (`X_train`, `y_train`):** 70% of the data. The model will **learn** from this set.
+      * **Test Set (`X_test`, `y_test`):** 30% of the data (`test_size=0.3`). The model will *never* see this set during training. We use it at the very end to **test** how good the model is on new, unseen data.
+  * `random_state=42` just makes sure the split is random but repeatable.
+  * **This completes Step 2.**
+
+-----
+
+### **Cell 9: Normalize the Data (Step 3)**
+
+```python
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+```
+
+  * **What it does:** This is **Normalization**. It rescales all the feature columns (`Age`, `Balance`, `CreditScore`, etc.) so they are all on a similar scale (with a mean of 0 and a standard deviation of 1).
+  * **Why:** This is *extremely* important for neural networks. Without it, a feature like `Balance` (with values up to 250,000) would seem way more important than a feature like `Tenure` (with values 0-10). Scaling puts all features on a level playing field, which helps the model train much faster and more accurately.
+  * **`fit_transform(X_train)`:** It "learns" the scale (`fit`) from the training data and then "applies" it (`transform`).
+  * **`transform(X_test)`:** It applies the *same* scale it learned from the training data to the test data.
+  * **This completes Step 3.**
+
+-----
+
+### **Cell 10: Initialize the Model (Step 4 - Part 1)**
+
+```python
+classifier = Sequential()
+```
+
+  * **What it does:** This creates an empty, "container" for your neural network.
+  * **Why:** `Sequential` is the simplest type of model. It means we are just going to stack layers one on top of the other.
+
+-----
+
+### **Cell 11: Build the Model - Add Layers (Step 4 - Part 2)**
+
+```python
+# Adding the input layer and the first hidden layer
+classifier.add(Dense(units = 6, kernel_initializer = 'he_uniform', activation = 'relu', input_dim = 11))
+
+# Adding the second hidden layer
+classifier.add(Dense(units = 6, kernel_initializer = 'he_uniform', activation = 'relu'))
+
+# Adding the output layer
+classifier.add(Dense(units = 1, kernel_initializer = 'glorot_uniform', activation = 'sigmoid'))
+```
+
+  * **What it does:** This is the *architecture* (the design) of your neural network "brain". We are adding three layers.
+  * **First Layer (Input/Hidden):**
+      * `Dense`: A standard fully-connected layer.
+      * `units = 6`: This layer has **6 neurons** (calculation units).
+      * `activation = 'relu'`: The "Rectified Linear Unit" is a popular activation function. It's what lets the network learn complex patterns.
+      * `input_dim = 11`: This tells the *first layer* to expect **11 inputs** (one for each of our 11 feature columns in `X_train`).
+  * **Second Layer (Hidden):**
+      * Another `Dense` layer, also with **6 neurons** and `relu` activation. It takes its input from the first layer.
+  * **Third Layer (Output):**
+      * `units = 1`: The final layer has only **1 neuron**.
+      * **Why 1?** Because we want a single output: the probability (from 0 to 1) that the customer will leave.
+      * `activation = 'sigmoid'`: This is the *perfect* activation for the output. It takes any number and squashes it into a value **between 0 and 1**, which is exactly what we need for a probability.
+
+-----
+
+### **Cell 12: Compile the Model (Step 4 - Part 3)**
+
+```python
+classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+```
+
+  * **What it does:** This "compiles" the model, getting it ready for training. It tells the model *how* to learn.
+  * **`optimizer = 'adam'`**: 'Adam' is an efficient "optimizer" (or "learning algorithm"). Its job is to adjust the neurons during training to get better and better.
+  * **`loss = 'binary_crossentropy'`**: This is the "loss function" (or "error function"). Since our problem is "binary" (0 or 1), this is the best function to use. It measures how wrong the model's predictions are. The optimizer's job is to minimize this loss.
+  * **`metrics = ['accuracy']`**: We're telling the model to also report the "accuracy" (how many predictions it got right) as it trains.
+
+-----
+
+### **Cell 13: Train the Model (Step 4 - Part 4)**
+
+```python
+model_history = classifier.fit(X_train, y_train, validation_split=0.33, batch_size = 10, epochs = 100)
+```
+
+  * **What it does:** This is the **training** step\! The model will now "learn" from the `X_train` and `y_train` data.
+  * **`epochs = 100`**: The model will "see" the entire training dataset 100 times. Each pass is one "epoch".
+  * **`batch_size = 10`**: The model learns in small "batches" of 10 customers at a time (this is more efficient).
+  * **`validation_split=0.33`**: This is clever. It automatically holds back 33% of the *training data* as a "validation set". After each epoch, the model checks its performance on this set. This helps us see if the model is "overfitting" (just memorizing the training data instead of learning general patterns).
+  * **Output:** You see the model training, epoch by epoch\! It shows the `loss` and `accuracy` for both the training data (`acc`) and the validation data (`val_acc`).
+
+-----
+
+### **Cell 14 & 15: Plotting Training History (Identify Improvement)**
+
+```python
+# (Code for plotting history of accuracy)
+plt.plot(model_history.history['accuracy'])
+plt.plot(model_history.history['val_accuracy'])
+...
+# (Code for plotting history of loss)
+plt.plot(model_history.history['loss'])
+plt.plot(model_history.history['val_loss'])
+...
+```
+
+  * **What it does:** These two cells plot the `accuracy` and `loss` values that were recorded during training (from Cell 13).
+  * **Why:** This is part of **Step 4 (Identify points of improvement)**.
+      * **Accuracy Plot:** We look at `accuracy` (blue line) and `val_accuracy` (orange line). Both lines go up, which is good. They stay relatively close, which means the model is **not overfitting** badly.
+      * **Loss Plot:** We look at `loss` (blue line) and `val_loss` (orange line). Both lines go down, which is what we want\!
+  * **Improvement?** The `val_accuracy` (orange line) seems to go flat after about 30-40 epochs. This means that training for 100 epochs might be *unnecessary*. A potential improvement would be to stop training earlier (this is called "Early Stopping") or add a `Dropout` layer (as imported in Cell 2) to prevent overfitting.
+
+-----
+
+### **Cell 16: Make Predictions (Step 5 - Part 1)**
+
+```python
+y_pred = classifier.predict(X_test)
+y_pred = (y_pred > 0.5)
+```
+
+  * **What it does:** Now we use our *trained* model on the *unseen test data* (`X_test`).
+  * **Line 1:** `classifier.predict(X_test)` asks the model to predict the outcome for the 3,000 customers in the test set. It returns a probability for each (e.g., 0.08, 0.91, 0.65).
+  * **Line 2:** `(y_pred > 0.5)` converts these probabilities into a final decision. If the probability is \> 0.5 (50%), it predicts `True` (1 - "Will Leave"). If it's \<= 0.5, it predicts `False` (0 - "Will Stay").
+
+-----
+
+### **Cell 17: Print the Confusion Matrix (Step 5 - Part 2)**
+
+```python
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+```
+
+  * **What it does:** This calculates and prints the **Confusion Matrix**, a key part of Step 5.
+  * **Why:** This table shows exactly where the model was right and wrong.
+  * **Output (e.g., `[[2263, 137], [290, 310]]` from your file's output, though your numbers may vary slightly):**
+      * **Top-Left (2263):** True Negatives. `y_test` was 0, `y_pred` was 0. (Correctly predicted "Stay").
+      * **Top-Right (137):** False Positives. `y_test` was 0, `y_pred` was 1. (Wrongly predicted "Leave").
+      * **Bottom-Left (290):** False Negatives. `y_test` was 1, `y_pred` was 0. (Wrongly predicted "Stay"). **This is the most costly error for the bank\!**
+      * **Bottom-Right (310):** True Positives. `y_test` was 1, `y_pred` was 1. (Correctly predicted "Leave").
+
+-----
+
+### **Cell 18: Print the Accuracy Score (Step 5 - Part 3)**
+
+```python
+print(accuracy_score(y_test, y_pred))
+```
+
+  * **What it does:** Calculates the overall **Accuracy Score**.
+  * **Why:** This is the simplest score. It's (Total Correct Predictions) / (Total Predictions).
+  * **Output (e.g., `0.8576...`):** This means your model got **85.76%** of its predictions right on the unseen test data. This is a good score\!
+  * **This completes the main part of Step 5.**
+
+-----
+
+### **Cell 19: Print the Classification Report (Step 5 - Extra)**
+
+```python
+print(classification_report(y_test,y_pred))
+```
+
+  * **What it does:** This gives an even more detailed report on performance.
+  * **Why:** Look at the `recall` for class `1` (customers who left). The output in your notebook (`0.29` or `0.41`) is low. This means that *of all the customers who actually left*, the model only *caught* 29% (or 41%) of them.
+  * **This is the main "Point of Improvement" (Step 4):** The model is good at predicting who *stays* (high recall for class 0), but bad at *finding* who *leaves* (low recall for class 1). A better model would try to improve this `recall` score for class 1.
+
+-----
+
+### **Cell 20: Empty Cell**
+
+```python
+# Empty
+```
+
+  * **What it does:** Nothing. It's just an empty cell for you to add more code if you want.
+
+Good luck explaining it\! You've got this.
