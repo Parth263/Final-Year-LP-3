@@ -1,0 +1,131 @@
+Absolutely, Pratham — let’s go over how the **output will look**, how to **interpret it**, and how you can confidently **explain it during your practical viva** 👇
+
+---
+
+## 🖥️ Sample Output (example)
+
+Let’s say the user enters:
+
+```
+Enter number of elements: 6
+Enter 6 elements:
+8 4 7 3 10 5
+```
+
+---
+
+### 🔹 Output on screen
+
+```
+Sorted Array (Deterministic Quick Sort):
+3 4 5 7 8 10
+Time taken (ns): 14500
+
+Sorted Array (Randomized Quick Sort):
+3 4 5 7 8 10
+Time taken (ns): 9800
+```
+
+---
+
+## 🧩 How to **explain this output**
+
+When your invigilator asks “Explain your output,” you can say something like this 👇
+
+---
+
+### 🗣️ **Step-by-step explanation**
+
+> “I entered 6 elements: 8, 4, 7, 3, 10, and 5.
+> The program sorts them using two different variants of QuickSort — deterministic and randomized.”
+
+---
+
+### 🟩 **First Output — Deterministic Quick Sort**
+
+* The sorted array is shown as:
+
+  ```
+  3 4 5 7 8 10
+  ```
+* It uses the **last element** (5 in this case) as the pivot every time.
+* The time taken (e.g., `14500 ns`) shows how long it took in nanoseconds.
+* Time can vary depending on system speed or how balanced the pivot choices were.
+
+You can add:
+
+> “In deterministic QuickSort, if the pivot divides elements unevenly, more recursive calls are made, which can slightly increase time.”
+
+---
+
+### 🟨 **Second Output — Randomized Quick Sort**
+
+* Sorted array:
+
+  ```
+  3 4 5 7 8 10
+  ```
+
+  (same final result — because both algorithms sort correctly)
+* The time may differ, like:
+
+  ```
+  Time taken (ns): 9800
+  ```
+* This version picks a **random pivot each time**, so:
+
+  * The splits are usually more balanced,
+  * And runtime is more consistent on average.
+
+You can say:
+
+> “Randomized QuickSort chooses pivot randomly, which helps avoid worst-case behavior. That’s why its time is often smaller or more stable.”
+
+---
+
+## 📊 How to **talk about results / analysis**
+
+If the invigilator asks you to compare both or analyze the output, you can summarize like this:
+
+> “Both methods produced the same sorted output, proving correctness.
+> However, their time taken differs slightly due to pivot selection strategy.
+> Deterministic QuickSort always picks the last element as pivot, while Randomized QuickSort chooses a pivot randomly.
+> Randomization improves the average performance and avoids the O(n²) worst-case seen in deterministic QuickSort for already sorted data.”
+
+---
+
+## 💬 If they ask follow-up questions
+
+### Q1: “Why is the time different even though both do the same job?”
+
+> “Because the pivot choice affects how balanced the subarrays are after partitioning. Random pivots often create more even splits, reducing recursion depth and total comparisons.”
+
+---
+
+### Q2: “If both show the same output, how do we know randomization helps?”
+
+> “In small inputs, times can fluctuate, but for large inputs or sorted inputs, randomized version consistently avoids bad pivot cases. So, it’s more reliable for performance.”
+
+---
+
+### Q3: “What does nanoseconds mean?”
+
+> “The time is measured in nanoseconds (1 ns = 10⁻⁹ seconds) using `System.nanoTime()`. It helps measure algorithm speed precisely.”
+
+---
+
+### Q4: “Can time values be negative or same?”
+
+> “No, it can’t be negative, but sometimes both versions may show very close times due to system speed or JVM optimization.”
+
+---
+
+## ✅ In short — what you should say if asked “Explain output”
+
+> “The program compares deterministic and randomized QuickSort.
+> Both produce the same sorted array, but the time taken can differ because deterministic uses a fixed pivot, while randomized chooses pivots randomly to avoid worst-case performance.
+> Hence, the randomized version usually performs faster or more consistently, especially for larger or already sorted inputs.”
+
+---
+
+Would you like me to give you one **example dry run with actual random pivot choices** (so you can show how the array changes step-by-step if asked “How is sorting happening internally?”)? It’s a common viva question.

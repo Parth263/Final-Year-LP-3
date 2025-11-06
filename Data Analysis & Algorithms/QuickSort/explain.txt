@@ -1,6 +1,131 @@
-| Variant       | Best Case  | Average Case              | Worst Case   | Space Complexity |
-| ------------- | ---------- | ------------------------- | ------------ | ---------------- |
-| Deterministic | O(n log n) | O(n log n)                | O(n²)        | O(log n)         |
-| Randomized    | O(n log n) | **O(n log n)** (expected) | O(n²) (rare) | O(log n)         |
+# QuickSort — a friendly, visual introduction
 
-do it for every practical program
+Nice — we’ll start from the very beginning and keep it visual and simple. I’ll explain what QuickSort *is*, how it *works step-by-step*, why there are *deterministic* and *randomized* versions, and how to analyze their time/space cost. When you type **next** I’ll walk through your code line-by-line.
+
+---
+
+## What is QuickSort? (in plain words)
+
+QuickSort is a **divide-and-conquer** sorting algorithm.
+Idea: pick a **pivot** element, rearrange the array so elements less than pivot go left and greater go right (that step is called **partitioning**), then recursively sort the left and right parts.
+
+Key properties:
+
+* Usually **very fast** in practice.
+* Works **in-place** (doesn't need a separate big array).
+* Not **stable** (equal elements’ relative order can change).
+* Worst-case can be slow (O(n²)) but average-case is good (O(n log n)).
+
+---
+
+## The partition step — visual example (this is the heart!)
+
+Take array:
+`[ 8, 4, 7, 3, 10, 5 ]`
+We choose pivot = **last element** (deterministic version) → pivot = `5`.
+
+We maintain an index `i` that marks the boundary of elements < pivot. Initially `i = low - 1`. We iterate `j` from `low` to `high-1`.
+
+Walkthrough (showing `i` and `j` and array after swaps):
+
+Start: `i = -1`, array index positions `0..5`
+`pivot = 5`
+
+j=0: `arr[0] = 8` (≥ pivot) → do nothing.
+array: `[8, 4, 7, 3, 10, 5]`, i=-1
+
+j=1: `arr[1] = 4` (< pivot) → increment i → i=0, swap arr[i] and arr[j] (swap arr[0] ↔ arr[1])
+array after swap: `[4, 8, 7, 3, 10, 5]`, i=0
+
+j=2: `arr[2] = 7` (≥ pivot) → do nothing.
+array: `[4, 8, 7, 3, 10, 5]`, i=0
+
+j=3: `arr[3] = 3` (< pivot) → i=1, swap arr[1] ↔ arr[3]
+array: `[4, 3, 7, 8, 10, 5]`, i=1
+
+j=4: `arr[4] = 10` (≥ pivot) → nothing.
+array: `[4, 3, 7, 8, 10, 5]`, i=1
+
+After loop, place pivot after i: swap arr[i+1] and arr[high] → swap arr[2] ↔ arr[5]
+array becomes: `[4, 3, 5, 8, 10, 7]`
+
+Now pivot `5` is at index 2. Everything left of index 2 is <5, everything right is ≥5. We then recursively sort the left subarray `[4,3]` and right `[8,10,7]`.
+
+---
+
+## Visual recursion tree
+
+Start: `[8,4,7,3,10,5]`
+→ Partition around 5 → left `[4,3]`, pivot 5, right `[8,10,7]`
+Recursively partition those subarrays until base case (size 0 or 1).
+
+This splitting into subproblems is why QuickSort is called divide-and-conquer.
+
+---
+
+## Deterministic vs Randomized QuickSort
+
+**Deterministic QuickSort (your code’s `partition`)**
+
+* Pivot chosen by a fixed rule (e.g., last element, first, or median-of-three).
+* If input is adversarial (already sorted and pivot = last), deterministic pivot may cause worst-case splits repeatedly → **O(n²)** time.
+
+**Randomized QuickSort (your code’s `randomizedPartition`)**
+
+* Choose pivot index randomly, swap it to the end, then run the same partition routine.
+* Randomness makes it very unlikely that you’ll repeatedly pick bad pivots, so expected time becomes **O(n log n)**.
+* It’s the same algorithmic structure; only pivot selection changes.
+
+Intuition: randomness prevents the input from "matching" your pivot rule every time.
+
+---
+
+## Complexity summary (simple)
+
+Let `n` = number of elements.
+
+* Best case: pivot always splits near half → recurrence T(n) = 2T(n/2) + O(n) → **O(n log n)**.
+* Average (expected) case: randomized pivot → **O(n log n)**.
+* Worst case: poor pivot every time (e.g., always smallest/largest) → **O(n²)**.
+* Space: **O(log n)** expected for recursion stack (balanced splits); **O(n)** worst case if recursion is unbalanced.
+* In-place? **Yes** (uses only a few extra variables).
+* Stable? **No** (relative order of equal elements may change).
+
+---
+
+## Why QuickSort is used despite worst-case?
+
+* On average it's fast and cache-friendly.
+* Low constant factors compared to mergesort.
+* Randomized QuickSort gives strong expected performance guarantees and avoids pathological inputs.
+
+---
+
+## Common pivot selection strategies
+
+* Last element (simple; used in your deterministic code).
+* First element.
+* Random element (randomized QuickSort).
+* Median-of-three (pick median of first, middle, last) — reduces probability of bad splits.
+
+---
+
+## When to prefer other sorts
+
+* If you need **stable** sort, use MergeSort or Timsort.
+* If worst-case **guarantee** O(n log n) is required (no randomness), use MergeSort or HeapSort.
+* For small arrays (n small), insertion sort can be faster in practice; therefore many QuickSort implementations switch to insertion sort for small partitions.
+
+---
+
+## Quick checklist / cheat-sheet
+
+* Partition step: O(n) time (single scan).
+* Recursion depth average: O(log n).
+* Expected total comparisons: ~1.39 n log n (practical estimate — not required to memorize).
+* Use randomized pivot or median-of-three to avoid bad cases.
+* Use insertion sort for very small partitions to speed up constants.
+
+---
+
+If that all makes sense, type **next** and I’ll explain your Java code line-by-line and map each part of the theory to the code (what each method does, why `i` starts at `low-1`, what the `swap` does, how timing comparisons are done, and some small improvements you could make).

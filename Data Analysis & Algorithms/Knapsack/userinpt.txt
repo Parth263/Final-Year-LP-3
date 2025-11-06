@@ -1,0 +1,612 @@
+Perfect 👍 let’s now go step-by-step through the **User Input Fractional Knapsack** program — the version where you enter the number of items, their values, and weights through the keyboard.
+
+We’ll again explain **every line simply**, so even if you forget Java syntax, you’ll understand what’s happening and can write it confidently in your practical exam.
+
+---
+
+## 🧠 Program: User Input Fractional Knapsack
+
+```java
+import java.util.Arrays;
+import java.util.Scanner;
+
+class Item {
+    int value, weight;
+    Item(int value, int weight) {
+        this.value = value;
+        this.weight = weight;
+    }
+}
+
+public class UserInputKnapsack {
+
+    static double getMaxValue(Item[] items, int capacity) {
+        Arrays.sort(items, (a, b) -> 
+            Double.compare((double)b.value / b.weight, (double)a.value / a.weight)
+        );
+
+        double totalValue = 0.0;
+
+        for (Item item : items) {
+            if (capacity >= item.weight) {
+                capacity = capacity - item.weight;
+                totalValue = totalValue + item.value;
+            } else {
+                totalValue = totalValue + item.value * ((double) capacity / item.weight);
+                break;
+            }
+        }
+        return totalValue;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of items: ");
+        int n = sc.nextInt();
+        Item[] items = new Item[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter value and weight of item " + (i + 1) + ": ");
+            int value = sc.nextInt();
+            int weight = sc.nextInt();
+            items[i] = new Item(value, weight);
+        }
+
+        System.out.print("Enter capacity of knapsack: ");
+        int capacity = sc.nextInt();
+
+        double maxValue = getMaxValue(items, capacity);
+        System.out.println("\nMaximum value we can obtain = " + maxValue);
+
+        sc.close();
+    }
+}
+```
+
+---
+
+## 🧩 Step-by-step explanation
+
+### 1️⃣ Import statements
+
+```java
+import java.util.Arrays;
+import java.util.Scanner;
+```
+
+* `Arrays` → used for sorting the array of items by ratio.
+* `Scanner` → used for reading input from the user.
+
+---
+
+### 2️⃣ Class to store items
+
+```java
+class Item {
+    int value, weight;
+    Item(int value, int weight) {
+        this.value = value;
+        this.weight = weight;
+    }
+}
+```
+
+* `Item` is a simple container class that stores:
+
+  * `value` → profit or worth of the item
+  * `weight` → how heavy the item is
+* The constructor initializes these two values whenever we write `new Item(value, weight)`.
+
+---
+
+### 3️⃣ Main class declaration
+
+```java
+public class UserInputKnapsack {
+```
+
+* The file must be saved as `UserInputKnapsack.java`.
+* This class holds both the `getMaxValue` function and the `main` function.
+
+---
+
+### 4️⃣ The core function (greedy algorithm)
+
+```java
+static double getMaxValue(Item[] items, int capacity) {
+```
+
+* `items` → array of all items (each has value and weight).
+* `capacity` → total weight the bag can hold.
+* Returns the **maximum total value** as a `double`.
+
+---
+
+### 5️⃣ Sort items by ratio (descending order)
+
+```java
+Arrays.sort(items, (a, b) -> 
+    Double.compare((double)b.value / b.weight, (double)a.value / a.weight)
+);
+```
+
+* Sorts all items according to **value/weight** ratio from **highest to lowest**.
+* `(a, b)` are two items being compared.
+* `(double)` ensures the division is done in decimal (not integer).
+* `Double.compare(b, a)` makes sorting **descending**.
+
+This means: the item with the highest “value per weight” comes first — our greedy choice.
+
+---
+
+### 6️⃣ Initialize total value
+
+```java
+double totalValue = 0.0;
+```
+
+* Keeps track of the total profit added to the knapsack.
+
+---
+
+### 7️⃣ Loop through items (take full or fractional)
+
+```java
+for (Item item : items) {
+    if (capacity >= item.weight) {
+        capacity = capacity - item.weight;
+        totalValue = totalValue + item.value;
+    } else {
+        totalValue = totalValue + item.value * ((double) capacity / item.weight);
+        break;
+    }
+}
+```
+
+#### Breakdown:
+
+* The loop goes through items one by one, in the sorted (greedy) order.
+* **Condition 1:** If the bag can still hold the entire item weight:
+
+  * Take the full item.
+  * Subtract its weight from the capacity.
+  * Add its full value to the total.
+* **Condition 2:** If the bag cannot hold the entire item:
+
+  * Take only the fraction that fits:
+
+    * Fraction = `(capacity / item.weight)`
+    * Add partial value: `item.value * fraction`
+  * Then stop (`break`) because the bag is now full.
+
+---
+
+### 8️⃣ Return result
+
+```java
+return totalValue;
+```
+
+* Gives back the total maximum value we managed to collect.
+
+---
+
+### 9️⃣ Main function — taking user input
+
+```java
+public static void main(String[] args) {
+    Scanner sc = new Scanner(System.in);
+```
+
+* Creates a `Scanner` object `sc` to read user input from keyboard.
+
+---
+
+### 10️⃣ Ask user how many items
+
+```java
+System.out.print("Enter number of items: ");
+int n = sc.nextInt();
+Item[] items = new Item[n];
+```
+
+* Takes number of items (say 3, 4, etc.).
+* Creates an array of `Item` objects with size `n`.
+
+---
+
+### 11️⃣ Take each item’s value and weight
+
+```java
+for (int i = 0; i < n; i++) {
+    System.out.print("Enter value and weight of item " + (i + 1) + ": ");
+    int value = sc.nextInt();
+    int weight = sc.nextInt();
+    items[i] = new Item(value, weight);
+}
+```
+
+* Repeats for all items:
+
+  * Ask the user to enter value and weight.
+  * Create a new `Item` with those numbers and store it in the array.
+
+Example:
+
+```
+Enter number of items: 3
+Enter value and weight of item 1: 60 10
+Enter value and weight of item 2: 100 20
+Enter value and weight of item 3: 120 30
+```
+
+---
+
+### 12️⃣ Read knapsack capacity
+
+```java
+System.out.print("Enter capacity of knapsack: ");
+int capacity = sc.nextInt();
+```
+
+* The user enters how much weight the bag can carry (like 50).
+
+---
+
+### 13️⃣ Call the greedy function
+
+```java
+double maxValue = getMaxValue(items, capacity);
+```
+
+* Passes all the data (items + capacity) to the function we explained earlier.
+* The function calculates and returns the maximum possible value.
+
+---
+
+### 14️⃣ Print the result
+
+```java
+System.out.println("\nMaximum value we can obtain = " + maxValue);
+sc.close();
+```
+
+* Displays the final answer.
+* Closes the scanner (good habit — releases system resources).
+
+---
+
+## 🧮 Example Run (so you know the flow)
+
+```
+Enter number of items: 3
+Enter value and weight of item 1: 60 10
+Enter value and weight of item 2: 100 20
+Enter value and weight of item 3: 120 30
+Enter capacity of knapsack: 50
+```
+
+### Internally:
+
+| Item | Value | Weight | Ratio |
+| ---- | ----- | ------ | ----- |
+| 1    | 60    | 10     | 6     |
+| 2    | 100   | 20     | 5     |
+| 3    | 120   | 30     | 4     |
+
+Sorted order → (6), (5), (4)
+
+* Take item 1 → full → value = 60, capacity = 40
+* Take item 2 → full → value = 160, capacity = 20
+* Take item 3 → 20/30 fraction → value += 120 × (20/30) = 80
+  → Total = 240.0
+
+✅ Output:
+
+```
+Maximum value we can obtain = 240.0
+```
+
+---
+
+## 🧠 Viva Questions You Might Get
+
+| Question                                                | Simple Answer                                                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| What is the greedy choice here?                         | Choosing the item with the highest value/weight ratio first.                                      |
+| Why do we sort the items?                               | So we can pick the most valuable ones first.                                                      |
+| Why use double for value?                               | Because we might take fractional items (e.g., half an item).                                      |
+| What’s the time complexity?                             | O(n log n) because of sorting.                                                                    |
+| How is fractional knapsack different from 0/1 knapsack? | In fractional knapsack, you can take part of an item; in 0/1 you must take the full item or none. |
+
+---
+
+✅ **Summary of Logic**
+
+| Step | Action                              |
+| ---- | ----------------------------------- |
+| 1    | Read all items (value + weight)     |
+| 2    | Sort by highest value/weight        |
+| 3    | Take items greedily (whole or part) |
+| 4    | Stop when capacity full             |
+| 5    | Print maximum total value           |
+
+-------------------------------------------------------------------------------------------------
+
+Perfect 🙌 — let’s go **slow and clear**, just like a walkthrough.
+
+We’ll take the **User Input Fractional Knapsack** program and see **exactly what happens when you run it** — from the moment you type something in the terminal, to how the program calculates and prints the result.
+
+We’ll also unpack every technical term — *ratio*, *fraction*, *capacity*, etc. — into normal language so nothing feels abstract.
+
+---
+
+# 🧠 What Happens When You Run the Program
+
+When you type this in your terminal:
+
+```bash
+javac UserInputKnapsack.java
+java UserInputKnapsack
+```
+
+the program starts running from the `main()` function.
+
+Now let’s go line by line through **how the output appears and what’s happening inside.**
+
+---
+
+## 🪜 Step 1: The Program Asks for Number of Items
+
+You’ll see this first:
+
+```
+Enter number of items:
+```
+
+👉 This means: “How many things are available to choose from?”
+
+For example, let’s type:
+
+```
+3
+```
+
+Now, the program knows there are **3 items** available.
+
+---
+
+## 🪜 Step 2: Enter Each Item’s Value and Weight
+
+Now it loops through each item one by one, asking:
+
+```
+Enter value and weight of item 1:
+```
+
+Here’s what these two terms mean:
+
+| Term       | Meaning                                                      | Example    |
+| ---------- | ------------------------------------------------------------ | ---------- |
+| **Value**  | The profit or worth of that item (how valuable it is).       | e.g. ₹60   |
+| **Weight** | How heavy the item is (how much space it takes in your bag). | e.g. 10 kg |
+
+So when you enter:
+
+```
+60 10
+```
+
+It means:
+Item 1 → Value = 60, Weight = 10.
+
+Then it asks for the second:
+
+```
+Enter value and weight of item 2:
+```
+
+You enter:
+
+```
+100 20
+```
+
+→ Item 2 → Value = 100, Weight = 20
+
+And third:
+
+```
+Enter value and weight of item 3:
+```
+
+You enter:
+
+```
+120 30
+```
+
+→ Item 3 → Value = 120, Weight = 30
+
+✅ So now your data looks like:
+
+| Item | Value | Weight |
+| ---- | ----- | ------ |
+| 1    | 60    | 10     |
+| 2    | 100   | 20     |
+| 3    | 120   | 30     |
+
+---
+
+## 🪜 Step 3: Enter Capacity of Knapsack
+
+Now it prints:
+
+```
+Enter capacity of knapsack:
+```
+
+This means: “What is the **maximum weight your bag can hold**?”
+
+Let’s enter:
+
+```
+50
+```
+
+→ The bag can carry **50 kg** maximum.
+
+---
+
+## 🧩 What the Program Does Internally (Behind the Scenes)
+
+Now the program has everything it needs:
+
+* **3 items** (with value and weight)
+* **Bag capacity = 50**
+
+Now, step by step, it applies the **Greedy Method**:
+
+---
+
+### 🔹 Step 3.1 — Calculate value-to-weight ratio for each item
+
+| Item | Value | Weight | Ratio (value ÷ weight) |
+| ---- | ----- | ------ | ---------------------- |
+| 1    | 60    | 10     | 6.0                    |
+| 2    | 100   | 20     | 5.0                    |
+| 3    | 120   | 30     | 4.0                    |
+
+👉 The ratio tells how “valuable” each kg of the item is.
+
+So:
+
+* Item 1 gives **6 value per kg**
+* Item 2 gives **5 per kg**
+* Item 3 gives **4 per kg**
+
+---
+
+### 🔹 Step 3.2 — Sort the items (highest ratio first)
+
+Now the program **sorts** them by ratio from **largest → smallest**, because we want to take the most profitable items first.
+
+Sorted list:
+
+1. Item 1 (ratio 6.0)
+2. Item 2 (ratio 5.0)
+3. Item 3 (ratio 4.0)
+
+---
+
+### 🔹 Step 3.3 — Start adding items into the bag
+
+**Capacity = 50**
+
+| Step | Item          | Weight | Action                                    | Remaining Capacity | Total Value                    |
+| ---- | ------------- | ------ | ----------------------------------------- | ------------------ | ------------------------------ |
+| 1    | Item 1 (10kg) | 10     | Fits completely                           | 50 - 10 = 40       | +60                            |
+| 2    | Item 2 (20kg) | 20     | Fits completely                           | 40 - 20 = 20       | +100 → 160                     |
+| 3    | Item 3 (30kg) | 30     | Only 20 kg space left → take **fraction** | 0                  | +120 × (20/30) = +80 → **240** |
+
+🧮 So total = **240.0**
+
+---
+
+### ❓ What does “fraction” mean here?
+
+Fraction means you don’t take the full item, you take *part of it*.
+If the bag can only fit part of an item, the program takes **proportional value**.
+
+For Item 3:
+
+* Full weight = 30
+* Only 20 can fit → fraction = 20/30 = 0.66
+* So you get 0.66 × 120 = 80 value.
+
+---
+
+## 🖥️ Step 4: Output on Screen
+
+Now the program prints:
+
+```
+Maximum value we can obtain = 240.0
+```
+
+✅ This is the **maximum total value (profit)** you can get with that bag capacity.
+
+---
+
+## 🧠 Simple English Summary
+
+* The program asks for how many items you have.
+* Then it asks for their *value* (worth) and *weight* (how heavy they are).
+* It then asks how much weight your bag can hold (capacity).
+* It automatically calculates **which items to take** (whole or part of them) to get **maximum total profit.**
+* The result printed is the **maximum total value**.
+
+---
+
+## 🧮 Another Example (to make it clearer)
+
+If you input:
+
+```
+Enter number of items: 3
+Enter value and weight of item 1: 40 20
+Enter value and weight of item 2: 100 10
+Enter value and weight of item 3: 120 30
+Enter capacity of knapsack: 50
+```
+
+### Internally:
+
+| Item | Value | Weight | Ratio |
+| ---- | ----- | ------ | ----- |
+| 1    | 40    | 20     | 2     |
+| 2    | 100   | 10     | 10    |
+| 3    | 120   | 30     | 4     |
+
+Sorted → Item 2 → Item 3 → Item 1
+
+Now fill bag:
+
+| Step                       | Action              | Value | Capacity Left |
+| -------------------------- | ------------------- | ----- | ------------- |
+| Take Item 2 (10)           | Full                | +100  | 40            |
+| Take Item 3 (30)           | Full                | +120  | 10            |
+| Take 1/2 of Item 1 (10/20) | +40 × (10/20) = +20 | 0     |               |
+
+✅ Total = 240.0
+Output:
+
+```
+Maximum value we can obtain = 240.0
+```
+
+---
+
+## 🧠 Terms You Must Know (in Simple Words)
+
+| Term                     | Meaning                                                          |
+| ------------------------ | ---------------------------------------------------------------- |
+| **Value**                | How much profit the item gives.                                  |
+| **Weight**               | How heavy the item is (how much capacity it takes).              |
+| **Capacity**             | Maximum weight the bag can hold.                                 |
+| **Ratio (value/weight)** | Profit per unit weight — higher ratio means better deal.         |
+| **Fractional item**      | Taking a part of an item when there isn’t enough space left.     |
+| **Total value**          | The total profit after adding all items (or fractions) that fit. |
+
+---
+
+## 💬 Viva-ready explanation (say this if examiner asks)
+
+> “The program first reads the value and weight of each item, then sorts them by their value-to-weight ratio in descending order.
+> It starts filling the knapsack by taking the most valuable items first. If the bag cannot hold a full item, it takes a fractional part of it.
+> Finally, it prints the maximum possible total value that can fit within the capacity. For example, for capacity 50, the maximum value is 240.”
+
+---
+
+Would you like me to show a **diagram or table** that visually shows how the bag is filled step by step (like how much space each item takes and what’s left)? That’s super helpful for viva or file explanation.

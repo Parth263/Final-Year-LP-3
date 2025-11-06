@@ -1,0 +1,249 @@
+Got it — I’ll walk through the **static `FractionalKnapsack`** program **step-by-step**, exactly what happens in execution, what each line/statement does, and how data moves through the program. I’ll explain like you’ve **never** seen this before.
+
+I'll show the code in small chunks and explain each chunk plainly.
+
+---
+
+### Full code (for quick reference)
+
+```java
+import java.util.Arrays;
+
+class Item {
+    int value, weight;
+
+    Item(int value, int weight) {
+        this.value = value;
+        this.weight = weight;
+    }
+}
+
+public class FractionalKnapsack {
+
+    static double getMaxValue(Item[] items, int capacity) {
+        Arrays.sort(items, (a, b) -> 
+            Double.compare((double) b.value / b.weight, (double) a.value / a.weight)
+        );
+
+        double totalValue = 0.0;
+
+        for (Item item : items) {
+            if (capacity >= item.weight) {
+                capacity = capacity - item.weight;
+                totalValue = totalValue + item.value;
+            } else {
+                totalValue = totalValue + item.value * ((double) capacity / item.weight);
+                break;
+            }
+        }
+
+        return totalValue;
+    }
+
+    public static void main(String[] args) {
+        Item[] items = {
+            new Item(40, 20),
+            new Item(100, 10),
+            new Item(60, 40),
+            new Item(120, 30)
+        };
+
+        int capacity = 60;
+
+        double maxValue = getMaxValue(items, capacity);
+        System.out.println("Maximum value we can obtain = " + maxValue);
+    }
+}
+```
+
+---
+
+## Step-by-step explanation
+
+### 1) `import java.util.Arrays;`
+
+* Brings the `Arrays` utility into the program so we can use `Arrays.sort(...)`.
+* Without this, the sort call would not be available.
+
+---
+
+### 2) `class Item { int value, weight; ... }`
+
+* Defines a simple data structure to hold an item’s information.
+* Fields:
+
+  * `value` — how much profit that item gives.
+  * `weight` — how heavy the item is.
+* `Item(int value, int weight)` is the constructor: when you write `new Item(40, 20)` it creates an `Item` object with `value = 40` and `weight = 20`.
+
+Why class? Because we need to keep value and weight together for each item.
+
+---
+
+### 3) `public class FractionalKnapsack { ... }`
+
+* The main class that contains logic and `main` method. Filename must be `FractionalKnapsack.java`.
+
+---
+
+### 4) `static double getMaxValue(Item[] items, int capacity) { ... }`
+
+* This is the function that **does the greedy algorithm** and returns the maximum total value as a `double`.
+* Inputs:
+
+  * `items` — array of `Item` objects.
+  * `capacity` — the knapsack capacity (an integer).
+* Output:
+
+  * `double` total maximum value achievable.
+
+---
+
+### 5) Sorting the items by ratio
+
+```java
+Arrays.sort(items, (a, b) -> 
+    Double.compare((double) b.value / b.weight, (double) a.value / a.weight)
+);
+```
+
+* **Goal:** Sort items by **value ÷ weight** in **descending** order (highest ratio first).
+* `Arrays.sort(items, comparator)` sorts the array using the comparator.
+* Comparator explained simply:
+
+  * For two items `a` and `b`, compute `b.value/b.weight` and `a.value/a.weight`.
+  * `Double.compare(x, y)` returns positive if x > y.
+  * Because we wrote `b` before `a`, we force **descending** order.
+* **Important:** `(double)` cast prevents integer division (e.g., `3/2` would give `1` in integers). We want `1.5`.
+
+**Effect:** After this line, `items[0]` is the best item (highest value per weight), `items[1]` the next best, etc.
+
+---
+
+### 6) Initialize accumulator
+
+```java
+double totalValue = 0.0;
+```
+
+* `totalValue` will accumulate the value we put into the knapsack (can be fractional, so `double`).
+
+---
+
+### 7) The greedy loop
+
+```java
+for (Item item : items) {
+    if (capacity >= item.weight) {
+        capacity = capacity - item.weight;
+        totalValue = totalValue + item.value;
+    } else {
+        totalValue = totalValue + item.value * ((double) capacity / item.weight);
+        break;
+    }
+}
+```
+
+Explain this line-by-line:
+
+* `for (Item item : items)`
+
+  * For each item in the sorted order (best ratio first)...
+
+* `if (capacity >= item.weight)`
+
+  * If the remaining knapsack capacity can hold the **whole item**:
+
+    * Subtract the item weight from capacity: `capacity = capacity - item.weight;`
+    * Add the full item value to `totalValue`: `totalValue = totalValue + item.value;`
+  * Move on to the next item.
+
+* `else` (the item does **not** fully fit)
+
+  * We can only take a **fraction** of this item.
+  * Fraction taken = `capacity / item.weight` (a number between 0 and 1)
+
+    * Cast `capacity` to `double` so division is fractional: `((double) capacity / item.weight)`
+  * Add proportional value to total: `item.value * fraction`
+  * `break;` — knapsack is now full; stop looping.
+
+**Key point:** Because items are sorted by best ratio, taking as much as possible of the current item is the optimal local choice.
+
+---
+
+### 8) `return totalValue;`
+
+* After loop finishes (either filled knapsack or exhausted items), return the accumulated `totalValue`.
+
+---
+
+### 9) `main` method — prepares input and runs function
+
+```java
+Item[] items = {
+    new Item(40, 20),
+    new Item(100, 10),
+    new Item(60, 40),
+    new Item(120, 30)
+};
+
+int capacity = 60;
+
+double maxValue = getMaxValue(items, capacity);
+System.out.println("Maximum value we can obtain = " + maxValue);
+```
+
+* Creates an array of four items (hard-coded values & weights).
+* Sets knapsack capacity to 60.
+* Calls `getMaxValue` with these items and capacity.
+* Prints the computed maximum value.
+
+---
+
+## Execution trace with these numbers (hand-run)
+
+Compute ratios:
+
+* Item(40,20) → 2.0
+* Item(100,10) → 10.0
+* Item(60,40) → 1.5
+* Item(120,30) → 4.0
+
+Sorted by ratio (descending):
+
+1. Item(100,10) ratio 10
+2. Item(120,30) ratio 4
+3. Item(40,20) ratio 2
+4. Item(60,40) ratio 1.5
+
+Greedy picking with capacity 60:
+
+* Take item(100,10): capacity = 50, totalValue = 100
+* Take item(120,30): capacity = 20, totalValue = 220
+* Take item(40,20): capacity = 0, totalValue = 260
+* Stop. Final `totalValue = 260.0`.
+
+So output will be:
+
+```
+Maximum value we can obtain = 260.0
+```
+
+---
+
+## Common pitfalls & exam tips
+
+* **Casting:** Always cast to `double` when dividing to get fractional part: `((double) capacity / item.weight)`. Without cast, integer division truncates.
+* **Comparator order:** Reversing `a` and `b` will flip sort order. You want highest ratio first.
+* **Break on fraction:** After taking fractional part, you must `break`—knapsack is full.
+* **Data types:** Use `double` for accumulated value; `int` for capacity and weights is fine.
+* **Edge cases:** If capacity is 0 initially, the function returns 0. If there are zero-weight items (shouldn’t happen), code would divide by zero — not expected in exam inputs.
+
+---
+
+If you want, I can now:
+
+* Explain the **interactive/user-input version** the same way (line-by-line).
+* Or show how to **write both variants** quickly during the exam.
+
+Say **“next”** when you’re ready for the user-input knapsack step-by-step.

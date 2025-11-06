@@ -1,97 +1,298 @@
-(1,3) & (3,1)
+Got it 💡 — you want this **N-Queens theory** explained like the previous practicals —
+✅ clean structure
+✅ plain English
+✅ simple visuals
+✅ table-style explanations
+✅ exam-ready phrasing.
 
-javac NQueens.java
-java NQueens
+Perfect — let’s restart completely fresh.
 
-We solve this using backtracking:-
-1. Place one queen per row.
-2. For each row, try placing a queen in a column that’s safe.
-3. If you get stuck, backtrack (remove the previous queen) and try a new column.
+---
 
-        // Check upper-left diagonal
-        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--)
+# ♕ N-Queens Problem — Simple & Visual Explanation (Exam + Understanding)
 
-        Each step up-left means:
-        Move one row up (row index decreases by 1)
-        Move one column left (column index decreases by 1)
+---
 
-        This ensures that both indices stay within the board boundaries:
-        i >= 0 → we haven’t gone above the top row.
-        j >= 0 → we haven’t gone past the leftmost column.
+## 🎯 **Aim**
 
-        //board[row][col] = 0;
-    If the recursive call returns false, it means:
+To design an **N × N chessboard** and place **N queens** such that
+**no two queens attack each other**,
+using a **Backtracking algorithm**.
 
-    “Placing a queen at (row, col) eventually led to a dead end —
-    I couldn’t finish placing the rest.”
+---
 
-    So, we remove the queen from (row, col) — set it back to 0.
+## 🧠 **What the Problem Means**
 
-    This step is called backtracking
+We have an N×N chessboard (like 4×4, 8×8, etc.).
+We must place N queens — one in each row — in such a way that:
 
-    IN SIMPLE TERMS:-
-    “Try every possible column in this row.
-    If one works, move to the next row.
-    If the next row gets stuck, come back here, remove your queen,
-    and try another column.
-    Keep doing this until either all rows are filled (success) or all possibilities fail (no solution).”
+✅ No two queens are in the same **row**
+✅ No two queens are in the same **column**
+✅ No two queens are on the same **diagonal**
 
-    if (solveNQueens(row + 1)) {last line}
-    it’s confirming that the entire rest of the board (all rows below)
-    can be filled without any conflicts
+---
 
+### 🧩 **Example for N = 4**
 
-ALGORITHM:-
-Step 1:
-Start with an empty N × N chessboard (all cells initialized to 0).
-Step 2:
-Place the fixed queen at the given position (fixedRow, fixedCol) by setting
-board[fixedRow][fixedCol] = 1.
-Step 3:
-Call the recursive function solveNQueens(row = 0) to begin placing queens starting from the first row.
+We need to place 4 queens on a 4×4 board:
 
-Recursive Function: solveNQueens(row)
-1️⃣ If row == N
- → All queens are placed successfully, so return true.
-2️⃣ If row == fixedRow
- → Skip this row (since a queen is already placed) and call
-  solveNQueens(row + 1).
-3️⃣ For each column col = 0 to N - 1:
-  a. Check if position (row, col) is safe using the isSafe() function.
-  b. If safe, place a queen there:
-    board[row][col] = 1
-  c. Recursively call solveNQueens(row + 1)
-    - If recursion returns true → solution found → return true.
-  d. Else, remove the queen (backtrack):
-    board[row][col] = 0
-4️⃣ If no column is safe in this row → return false (trigger backtracking).
+```
+. Q . .   ← Queen in row 1, column 2
+. . . Q   ← Queen in row 2, column 4
+Q . . .   ← Queen in row 3, column 1
+. . Q .   ← Queen in row 4, column 3
+```
 
-Function: isSafe(row, col)
-To check if a queen can be placed at (row, col):
-1️⃣ Check all rows above the current row in the same column.
- If any has a queen → return false.
-2️⃣ Check the upper-left diagonal (i--, j--).
- If any cell has a queen → return false.
-3️⃣ Check the upper-right diagonal (i--, j++).
- If any cell has a queen → return false.
-4️⃣ If no conflicts found → return true.
+(`Q` = Queen, `.` = Empty)
 
-Step 4:
-After the recursive call,
-If solveNQueens(0) returns true → print the board as the final N-Queens matrix.
-Else → display “No solution exists for this placement.”
+✅ No two queens attack each other.
 
+---
 
-| Resource  | Complexity | Reason                                             |
-| --------- | ---------- | -------------------------------------------------- |
-| **Time**  | O(N × N!)  | N recursive levels × N choices × O(N) safety check |
-| **Space** | O(N²)      | N×N board + recursion stack                        |
+## 👑 **How a Queen Attacks**
 
-| Step  | Meaning                                                          |
-| ----- | ---------------------------------------------------------------- |
-| N!    | total possible queen arrangements (1 per row, different columns) |
-| × N   | time spent checking diagonals and columns for safety             |
-| O(N²) | board size and recursion stack                                   |
+A Queen in chess can attack in 8 directions:
 
+```
+↖ ↑ ↗
+← Q →
+↙ ↓ ↘
+```
 
+So, if there’s another queen in the same **row**, **column**, or **diagonal**,
+→ ❌ Not safe placement.
 
+---
+
+## 🔁 **How Backtracking Works (Step-by-Step)**
+
+We build the solution **row by row**:
+
+| Step | Action                                                                                                     | Example                        |
+| ---- | ---------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| 1    | Place a queen in the first row, try all columns one by one.                                                | Try (0,0), (0,1), (0,2), (0,3) |
+| 2    | For each valid column, go to the next row and try placing another queen.                                   |                                |
+| 3    | If at some row no column is safe → go **back (backtrack)** and move the previous queen to the next column. | Undo wrong moves               |
+| 4    | Repeat until all N queens are placed.                                                                      | Solution found                 |
+| 5    | If we reach the last row successfully, print the board.                                                    | ✅                              |
+
+💬 In short:
+👉 *Try → Check → Recurse → Undo if needed.*
+
+---
+
+## 🔒 **What “Fixed Queen” Means**
+
+In your question, one queen’s position is **already fixed** — the program asks for it.
+
+Example:
+If user says “Row = 2, Column = 4” →
+then the queen is already placed there before the algorithm starts.
+
+So we:
+
+* Keep that position fixed (`board[1][3] = 1`)
+* Skip that row while solving.
+
+If that fixed queen leads to no valid arrangement, the program prints:
+
+```
+No solution exists for this placement.
+```
+
+---
+
+## 🧩 **What Does the Board Look Like Internally**
+
+The board is represented as a 2D array:
+
+```java
+int[][] board = new int[N][N];
+```
+
+| Cell Value | Meaning       |
+| ---------- | ------------- |
+| 0          | Empty cell    |
+| 1          | Queen present |
+
+For example (N = 4):
+
+```
+0 1 0 0
+0 0 0 1
+1 0 0 0
+0 0 1 0
+```
+
+---
+
+## 🧮 **How “Safety Check” Works (isSafe function)**
+
+When we try to place a queen at position `(row, col)`,
+we must check 3 things above that row:
+
+### 1️⃣ Check the **column** (straight up)
+
+→ Is there any queen above in the same column?
+
+```
+↑
+Q
+↑
+(row,col)
+```
+
+If yes → ❌ Not safe.
+
+---
+
+### 2️⃣ Check the **upper-left diagonal**
+
+Go up and left simultaneously (`row–1, col–1`).
+
+```
+↖ Q
+  ↖ (row,col)
+```
+
+If any queen found → ❌ Not safe.
+
+---
+
+### 3️⃣ Check the **upper-right diagonal**
+
+Go up and right simultaneously (`row–1, col+1`).
+
+```
+   Q ↗
+(row,col)↗
+```
+
+If any queen found → ❌ Not safe.
+
+✅ If all three directions are clear → Safe to place a queen.
+
+---
+
+## 🧰 **How the Recursive Function Works (solveNQueens)**
+
+Pseudocode logic (easy to memorize):
+
+```
+solve(row):
+    if row == N:
+        return true  // All queens placed successfully
+
+    if row == fixedRow:
+        return solve(row + 1)  // Skip fixed queen row
+
+    for each column in 0..N-1:
+        if isSafe(row, col):
+            board[row][col] = 1     // Place queen
+            if solve(row + 1):      // Move to next row
+                return true
+            board[row][col] = 0     // Backtrack
+    return false
+```
+
+So it goes **down the rows**, and when something fails,
+it **goes back up** and **tries next option** — that’s *backtracking*.
+
+---
+
+## 🧠 **Understanding with Example (N=4)**
+
+Let’s visualize a mini run:
+
+1️⃣ Try Row 0 → Place queen at (0,1)
+2️⃣ Go to Row 1 → Try all columns until safe → maybe (1,3)
+3️⃣ Go to Row 2 → safe at (2,0)
+4️⃣ Go to Row 3 → safe at (3,2)
+✅ All rows done → Print board.
+
+If at any row you can’t find a safe spot:
+→ remove last queen and try the next column in previous row.
+
+---
+
+## 🧾 **Expected Output (Example Run)**
+
+If input is:
+
+```
+Enter size of board (N): 4
+Enter fixed queen row (1-based): 1
+Enter fixed queen column (1-based): 2
+```
+
+→ Means first queen placed at (row 0, col 1).
+
+Output could be:
+
+```
+Final N-Queens Matrix:
+0 1 0 0
+0 0 0 1
+1 0 0 0
+0 0 1 0
+```
+
+✅ 1’s represent queens.
+✅ Each row and column has exactly one 1.
+✅ No two queens attack each other.
+
+---
+
+## 🧮 **Time and Space Complexity**
+
+| Operation               | Complexity    | Why                              |
+| ----------------------- | ------------- | -------------------------------- |
+| Backtracking placements | O(N!)         | Every row tries multiple columns |
+| Checking safety         | O(N) per step | Scans diagonals & column         |
+| Total                   | ≈ O(N × N!)   | Worst case (small N runs fine)   |
+| Space                   | O(N²)         | Board + recursion                |
+
+---
+
+## ⚡ **Advantages of Backtracking**
+
+* Simple, systematic, and guarantees finding a valid solution (if one exists).
+* Easily adaptable for partial constraints (like fixed queen).
+
+---
+
+## 🧠 **Viva-Ready Quick Answers**
+
+| Question                          | Short, clear answer                                                           |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| What is N-Queens?                 | Problem of placing N queens on an N×N board so that no two attack each other. |
+| Why backtracking?                 | Because we explore possible placements step-by-step and undo wrong ones.      |
+| What does “isSafe” do?            | Checks column, left diagonal, and right diagonal for any other queen.         |
+| What does backtracking mean here? | Remove previously placed queen when current row has no safe spot.             |
+| Why skip `fixedRow`?              | Because that queen is already placed by user.                                 |
+| What if no solution exists?       | Program prints “No solution exists for this placement.”                       |
+| Time complexity?                  | Roughly O(N!).                                                                |
+| Why only check upper side?        | Because we place queens top to bottom, no queens exist below.                 |
+
+---
+
+## 🧭 **How to remember the flow**
+
+Think of the board as a ladder:
+
+1. Go row by row.
+2. Try each column.
+3. If safe → place queen → go to next row.
+4. If stuck → climb back up (backtrack).
+5. Continue until all rows filled.
+
+---
+
+✅ **Summary in one line for file**
+
+> The N-Queens problem is solved using backtracking, where queens are placed row by row ensuring no two queens share the same row, column, or diagonal. If a fixed queen position is given, the algorithm skips that row and continues. When a valid configuration is found, the final N×N matrix is displayed.
+
+---
+
+Would you like me to now proceed with the **line-by-line code explanation** (like we did with Huffman and Knapsack) — explaining every line in the Java program with what happens in plain English?
+If yes, just say **“next.”**

@@ -1,0 +1,313 @@
+Great — I’ll walk through the **entire N-Queens Java program** line-by-line in the clearest, easiest way so it *clicks*. I’ll break the code into small chunks, explain what each line does in plain English, show the control flow (how the recursion + backtracking moves), and finish with quick exam tips and how to run it.
+
+I’ll assume the file is saved as `NQueens.java` (because the class is `public class NQueens`). Let’s go.
+
+---
+
+### Header + globals
+
+```java
+import java.util.Scanner;
+
+public class NQueens {
+
+    static int N;
+    static int[][] board;
+    static int fixedRow = -1;
+    static int fixedCol = -1;
+```
+
+* `import java.util.Scanner;` — brings in the Scanner class so we can read keyboard input.
+* `public class NQueens {` — start of the class; file must be `NQueens.java`.
+* `static int N;` — global variable that stores board size (N).
+* `static int[][] board;` — the board itself: a 2-D array of ints. `0` means empty, `1` means queen.
+* `static int fixedRow = -1, fixedCol = -1;` — indices of the **fixed** queen (if user set one). `-1` means “none specified yet.”
+
+---
+
+### printBoard()
+
+```java
+    static void printBoard() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+```
+
+* `printBoard()` prints the board to the console.
+* Outer loop `i` iterates rows; inner loop `j` iterates columns and prints each `board[i][j]` with a space.
+* `System.out.println();` after each row moves to next line; final `println()` adds a blank line.
+* **Interpreting output**: a printed `1` means a queen is placed at that position.
+
+---
+
+### isSafe(row, col)
+
+```java
+    static boolean isSafe(int row, int col) {
+        // Check column
+        for (int i = 0; i < row; i++) {
+            if (board[i][col] == 1)
+                return false;
+        }
+
+        // Check upper-left diagonal
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j] == 1)
+                return false;
+        }
+
+        // Check upper-right diagonal
+        for (int i = row - 1, j = col + 1; i >= 0 && j < N; i--, j++) {
+            if (board[i][j] == 1)
+                return false;
+        }
+
+        return true;
+    }
+```
+
+**What `isSafe` checks and why:**
+
+* We place queens **row by row from top (0) to bottom (N-1)**. So when trying to place at `(row,col)` there are only queens in rows `0..row-1`.
+* **Column check:** scans every earlier row `i` at the same `col`. If any `board[i][col]` is `1` → same column conflict → `false`.
+* **Upper-left diagonal:** walks up and left (`i--, j--`) from `(row-1, col-1)` until outside board. If any queen found → `false`.
+* **Upper-right diagonal:** walks up and right (`i--, j++`) from `(row-1, col+1)` → same check.
+* If none of these finds a queen → it's safe to place one → return `true`.
+
+**Why we only check “above”:** Because we haven't placed queens in lower rows yet — those will be decided later.
+
+---
+
+### solveNQueens(row) — the backtracking function
+
+```java
+    static boolean solveNQueens(int row) {
+        if (row == N) {
+            return true;
+        }
+
+        if (row == fixedRow) {
+            return solveNQueens(row + 1);
+        }
+
+        for (int col = 0; col < N; col++) {
+            if (isSafe(row, col)) {
+                board[row][col] = 1;
+
+                if (solveNQueens(row + 1))
+                    return true;
+
+                board[row][col] = 0;
+            }
+        }
+
+        return false;
+    }
+```
+
+This is the heart of the algorithm. Step-by-step:
+
+1. `if (row == N) return true;`
+
+   * **Base case**: we successfully placed queens in rows `0..N-1`. If recursion reaches row `N`, all queens are placed → success.
+
+2. `if (row == fixedRow) return solveNQueens(row + 1);`
+
+   * If the current row already has a **fixed** queen (user placed it before starting), just **skip** placing a new queen in this row and recursively continue to the next row.
+   * NOTE: we assume the fixed queen already sits in `board[fixedRow][fixedCol] = 1` before calling this function.
+
+3. `for (int col = 0; col < N; col++) { ... }`
+
+   * Try every column in the current row.
+
+4. `if (isSafe(row, col)) { board[row][col] = 1; ... }`
+
+   * If position `(row,col)` is safe, **place** a queen there (set `1`).
+
+5. `if (solveNQueens(row + 1)) return true;`
+
+   * Recurse to place the rest (next row).
+   * If recursion returns `true`, a full solution was found — propagate `true` back up immediately (we stop after finding the first solution).
+
+6. `board[row][col] = 0;`
+
+   * **Backtrack**: if the recursive call returned `false`, this placement led to no solution deeper down — undo it and try the next column.
+
+7. If loop finishes with no successful placement → `return false;` → propagate failure up so earlier decisions can try alternatives.
+
+**Important behavior:** This code returns the *first* valid solution it finds. It does not enumerate all solutions — it stops after one is found.
+
+---
+
+### main()
+
+```java
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter size of board (N): ");
+        N = sc.nextInt();
+        board = new int[N][N];
+
+        // Take fixed queen input
+        System.out.print("Enter fixed queen row (1-based): ");
+        fixedRow = sc.nextInt() - 1;
+        System.out.print("Enter fixed queen column (1-based): ");
+        fixedCol = sc.nextInt() - 1;
+
+        // Place the first queen
+        board[fixedRow][fixedCol] = 1;
+
+        // Start solving
+        boolean solved = solveNQueens(0);
+
+        // Output result
+        if (solved) {
+            System.out.println("\nFinal N-Queens Matrix:");
+            printBoard();
+        } else {
+            System.out.println("No solution exists for this placement.");
+        }
+
+        sc.close();
+    }
+}
+```
+
+Walkthrough:
+
+1. `Scanner sc = new Scanner(System.in);` — set up input.
+
+2. Ask for `N` and initialize `board = new int[N][N];`
+
+   * Board initially filled with zeros.
+
+3. Read **fixed queen** position: the program asks 1-based row & column and converts to 0-based by subtracting 1.
+
+   * If user enters `2` for column, internal index becomes `1`.
+
+4. `board[fixedRow][fixedCol] = 1;` — place the fixed queen on the board **before** starting the solver.
+
+5. `boolean solved = solveNQueens(0);` — start attempting to place queens beginning from row `0`. (Even though `fixedRow` may be 0 or any row, solver handles it.)
+
+6. If `solved` true → print final board with `printBoard()`; else print “No solution exists for this placement.”
+
+7. `sc.close();` — close input scanner.
+
+---
+
+## Visual flow (how recursion & backtracking progress) — easiest way to picture
+
+Think of rows as levels of a tree. Each node is a choice of column for that row.
+
+* Level 0: try columns 0,1,2,... — each choice leads to a subtree.
+* Level 1: for chosen column at row0, try columns at row1.
+* If you reach a level where no columns are safe → **dead end** → go up one level and try the next column there (backtrack).
+* If you reach level `N` → success, return true and print board.
+
+If a **fixed row** exists, that level is not branching — it has exactly one fixed child; the solver just jumps over it.
+
+---
+
+## Example run (visualized)
+
+Input:
+
+```
+N = 4
+fixedRow = 0 (user typed 1)
+fixedCol = 1 (user typed 2)
+```
+
+Initial board after placing fixed queen:
+
+```
+0 1 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+```
+
+Solver starts at `row = 0`. Since `row == fixedRow`, it immediately calls `solveNQueens(1)`.
+
+Now it tries to place a queen on row 1: checks columns 0..3, etc. It will try positions, check `isSafe`, backtrack if needed, and eventually find a valid filling:
+
+```
+0 1 0 0
+0 0 0 1
+1 0 0 0
+0 0 1 0
+```
+
+---
+
+## Common pitfalls & exam tips (what examiners ask, short answers)
+
+* **Why check only above rows in `isSafe`?**
+  Because we place queens top-to-bottom; below rows are not populated yet.
+
+* **Why `board` is `int[][]` not `boolean[][]`?**
+  Using `int` lets you print `0` and `1` which are easy to show in exam outputs. A boolean array would also work.
+
+* **What if user enters invalid fixed position (out of range)?**
+  Program will throw `ArrayIndexOutOfBoundsException` — in exam you can mention you assume valid input or add checks:
+
+  ```java
+  if (fixedRow < 0 || fixedRow >= N || fixedCol < 0 || fixedCol >= N) { /* error */ }
+  ```
+
+* **What if fixed queen makes solution impossible?**
+  The program will print `No solution exists for this placement.` — good to mention.
+
+* **N = 2 or 3 have no solutions:**
+  You can say that if examiner asks; code will return “No solution”.
+
+* **Why `if (solveNQueens(row + 1)) return true;`?**
+  We stop at the first full solution. To enumerate all solutions, we’d continue searching after printing and not return immediately.
+
+---
+
+## How to run (commands)
+
+Save as `NQueens.java`, then:
+
+```bash
+javac NQueens.java
+java NQueens
+```
+
+Follow prompts, e.g.
+
+```
+Enter size of board (N): 4
+Enter fixed queen row (1-based): 1
+Enter fixed queen column (1-based): 2
+```
+
+---
+
+## Short viva answers you can memorize (3–4 lines each)
+
+* **Explain backtracking approach for N-Queens:**
+  Place a queen row by row. For each row try every column; if a column is safe, place queen and recurse to next row. If a later row cannot be solved, remove (backtrack) the current queen and try next column.
+
+* **How does `isSafe` work?**
+  It checks the same column and both upper diagonals for any existing queen; if none found, placement is safe.
+
+* **What is `fixedRow` used for?**
+  To allow one queen pre-placed by the user — solver skips that row and finds positions for remaining queens around it.
+
+---
+
+If you want, I can now:
+
+* Show a **small dry trace**: step through the recursion calls (stack) for a specific small example (N = 4 with a fixed queen) so you can see the exact order of placements and backtracks; **or**
+* Convert the code so it prints the step-by-step placements (useful for debugging/learning).
+
+Which do you want next?

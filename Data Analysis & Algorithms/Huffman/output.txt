@@ -1,0 +1,212 @@
+Perfect 👌 — let’s decode and **fully explain this output** step-by-step, just like we did before — but now for your actual run with input:
+
+```
+ssdfgghhjjii
+```
+
+---
+
+# 🧠 Step 1: The Input
+
+```
+ssdfgghhjjii
+```
+
+Let’s count how many times each letter appears.
+
+| Character | Frequency |
+| --------- | --------- |
+| s         | 2         |
+| d         | 1         |
+| f         | 1         |
+| g         | 2         |
+| h         | 2         |
+| j         | 2         |
+| i         | 2         |
+
+---
+
+# 🧩 Step 2: Frequency Map (what program does first)
+
+The program creates this map internally:
+
+```java
+{s=2, d=1, f=1, g=2, h=2, j=2, i=2}
+```
+
+These frequencies are passed into the Huffman algorithm.
+
+---
+
+# ⚙️ Step 3: Building the Huffman Tree
+
+The program now repeatedly picks **two smallest frequencies** and combines them into one node (this is the greedy step).
+
+Let’s simplify how that works conceptually:
+
+* The smallest frequencies are for `'d'` and `'f'` (both 1).
+  → combine into node(2)
+* Now all characters have frequency 2 (s, g, h, j, i, and that combined node of d+f)
+* The algorithm keeps combining two at a time until only one tree (root) remains.
+
+So the final Huffman tree roughly groups characters like this:
+
+```
+                 (14)
+           _______|______
+          /               \
+       (6)                 (8)
+     /    \              /    \
+   (2)    (4)         (4)    (4)
+  / \     / \         / \    / \
+ d  f    s  h        g  i   j  (etc.)
+```
+
+(This is a **simplified** visualization, not the exact one but close enough to understand structure.)
+
+---
+
+# 🔢 Step 4: Assign Huffman Codes
+
+Now the program walks through this tree and assigns:
+
+* **Left branch = 0**
+* **Right branch = 1**
+
+So the codes printed by your output are:
+
+| Character | Code |
+| --------- | ---- |
+| s         | 101  |
+| d         | 010  |
+| f         | 011  |
+| g         | 110  |
+| h         | 100  |
+| i         | 00   |
+| j         | 111  |
+
+✅ Notice:
+
+* Every code is **unique**.
+* No code is a **prefix** of another (that’s what makes it *prefix-free*).
+* Characters with same frequency might have different code lengths — that’s fine; Huffman depends on how the tree got merged, and multiple correct trees are possible.
+
+---
+
+# 💾 Step 5: Encoding
+
+Now the original text was:
+
+```
+ssdfgghhjjii
+```
+
+Let’s encode it by replacing every letter with its Huffman code.
+
+| Character | Code |
+| --------- | ---- |
+| s         | 101  |
+| s         | 101  |
+| d         | 010  |
+| f         | 011  |
+| g         | 110  |
+| g         | 110  |
+| h         | 100  |
+| h         | 100  |
+| j         | 111  |
+| j         | 111  |
+| i         | 00   |
+| i         | 00   |
+
+Now join them all together:
+
+```
+101 101 010 011 110 110 100 100 111 111 00 00
+```
+
+Remove spaces →
+
+```
+Encoded bitstring = 1011010100111101101001001111110000
+```
+
+✅ This is exactly what your program printed:
+
+```
+Encoded bitstring: 1011010100111101101001001111110000
+```
+
+---
+
+# 🧩 Step 6: Decoding (checking correctness)
+
+Now, the program decodes by reading one bit at a time:
+
+* Go left for `0`
+* Go right for `1`
+* When a leaf node (character) is reached, print that letter and go back to root.
+
+Let’s decode part of it manually to check:
+
+| Bit sequence | Character found |
+| ------------ | --------------- |
+| 101          | s               |
+| 101          | s               |
+| 010          | d               |
+| 011          | f               |
+| 110          | g               |
+| 110          | g               |
+| 100          | h               |
+| 100          | h               |
+| 111          | j               |
+| 111          | j               |
+| 00           | i               |
+| 00           | i               |
+
+✅ Result = `ssdfgghhjjii`
+
+The same as the input. So the compression and decompression are both perfect.
+
+---
+
+# 🧾 Step 7: Final Output Breakdown
+
+```
+Enter text to encode: ssdfgghhjjii
+
+Huffman Codes (char : code) :
+'s' : 101
+'d' : 010
+'f' : 011
+'g' : 110
+'h' : 100
+'i' : 00
+'j' : 111
+
+Original text: ssdfgghhjjii
+Encoded bitstring: 1011010100111101101001001111110000
+Decoded text: ssdfgghhjjii
+```
+
+Let’s interpret each part:
+
+| Line                  | Meaning                                                                 |
+| --------------------- | ----------------------------------------------------------------------- |
+| **Huffman Codes**     | Shows each letter and the binary code assigned based on frequency.      |
+| **Original text**     | The input message you entered.                                          |
+| **Encoded bitstring** | The compressed binary representation of that message.                   |
+| **Decoded text**      | The text recovered from the bitstring — matches the original perfectly. |
+
+---
+
+# 🧠 Simple Viva Explanation (say this if examiner asks)
+
+> “The program took my input `ssdfgghhjjii`, counted the frequency of each character, and built a Huffman tree.
+> Each character was assigned a unique binary code depending on how frequent it was — more frequent letters get shorter codes.
+> Then the text was converted into a binary string: `1011010100111101101001001111110000`.
+> Finally, the same tree was used to decode that string back to the original text.
+> Since both matched, the Huffman Encoding and Decoding worked correctly.”
+
+---
+
+Would you like me to give you a **simple visual Huffman tree sketch** for this exact example (`ssdfgghhjjii`) so you can draw it in your file or explain it visually during viva?

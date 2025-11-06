@@ -1,70 +1,366 @@
-javac Fibonacci.java
-java Fibonacci
+Perfect 👌 — let’s build your **full theory foundation** for the Fibonacci practical.
+This will cover **algorithm logic, difference between recursive & non-recursive**, and **complexity analysis** — everything you’ll need to confidently write and explain it in your exam.
 
+---
 
-The Fibonacci series is a sequence of numbers where each number is the sum of the two preceding ones.
+## 🧠 PRACTICAL: Fibonacci Series (Recursive & Non-Recursive)
 
-Formula : F(n)=F(n−1)+F(n−2)
-Base Case: F(0)=0, F(1)=1
+### 🔹 Problem Statement
 
-1️⃣ Recursive Method
+> Write a **program (in Java)** to calculate Fibonacci numbers using both **recursive** and **non-recursive (iterative)** methods and analyze their **time and space complexity**.
 
-The recursive method directly uses the mathematical definition.
-Logic:
+---
 
-If n <= 1, return n (base case).
-Else, return F(n-1) + F(n-2) (recursive case).
+## 🔸 What is the Fibonacci Series?
 
-Example :-
+The **Fibonacci sequence** is a famous mathematical series where each term is the sum of the two preceding ones.
+
+### Formula:
+
+[
+F(n) = F(n - 1) + F(n - 2)
+]
+with base conditions:
+[
+F(0) = 0,\quad F(1) = 1
+]
+
+So the sequence starts like:
+
+```
+0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
+```
+
+---
+
+## 🔸 Recursive Method (Divide and Conquer idea)
+
+**Recursion** means a function calls itself to solve smaller subproblems.
+
+For Fibonacci:
+
+* To find `F(n)`, we need `F(n-1)` and `F(n-2)`.
+* So the function keeps calling itself until it reaches the **base case** (`n=0` or `n=1`).
+
+### Example (n = 5):
+
+```
 F(5)
 = F(4) + F(3)
 = (F(3) + F(2)) + (F(2) + F(1))
 = ((F(2) + F(1)) + (F(1) + F(0))) + ((F(1) + F(0)) + F(1))
-= (F(1)+F(0)) + F(1) + (F(1) + F(0)) + ((F(1) + F(0)) + F(1))
-=   1 + 1 + 1 + 1 + 1
-=   5 
+```
 
-There is a loop in the main function , which runs for every number from 0 to n and calculates the values then puts them into the series in final output
+You can see the **same subproblems are recalculated many times**, e.g., `F(3)`, `F(2)` appear repeatedly.
 
-Speed : Slow for large n
-Reliability : Simple but inefficient
+That’s why recursion here is **inefficient** (exponential time).
 
-2️⃣ Iterative Method
+---
 
-Initial values: prev = 0 , curr = 1
+### ⚙️ Recursive Algorithm (Steps)
 
-Now we enter the loop (i goes from 2 → 5):
-| i | Calculation  | next | prev     | curr     |
-| - | ------------ | ---- | -------- | -------- |
-| 2 | next = 0 + 1 | 1    | curr → 1 | next → 1 |
-| 3 | next = 1 + 1 | 2    | curr → 1 | next → 2 |
-| 4 | next = 1 + 2 | 3    | curr → 2 | next → 3 |
-| 5 | next = 2 + 3 | 5    | curr → 3 | next → 5 |
+1. If `n <= 1`, return `n`. (Base case)
+2. Else return `fibonacci(n-1) + fibonacci(n-2)`.
 
-F(0), F(1), F(2), F(3), F(4)
-Output: 0 1 1 2 3
+---
 
+## 🔸 Non-Recursive (Iterative) Method
 
-Speed : Fast and efficient
-Reliability : Slightly longer but better performance
+Instead of recursive calls, we can compute Fibonacci numbers using **a simple loop** and **two variables** to store previous results.
 
+### Idea:
 
-Method          Time Complexity                         Reason 
-Recursive           O(2ⁿ)                   Each call generates 2 more recursive calls 
-                                            (exponential growth).
+We know:
 
-Iterative           O(n)                    Single loop runs n-2 times.
+```
+F(0) = 0, F(1) = 1
+F(2) = F(1) + F(0)
+F(3) = F(2) + F(1)
+...
+```
 
+So we can **start from 0 and 1** and **add them iteratively** to find all next numbers.
 
+---
 
-Method          Space Complexity                       Reason 
-Recursive           O(n)                   Due to recursive call stack depth.
+### ⚙️ Iterative Algorithm (Steps)
 
-Iterative           O(1)                   Uses only 3 integer variables regardless of n.
+1. If `n <= 1`, return `n`.
+2. Initialize:
 
-Applications :-
-1. Used in algorithms like Fibonacci Search and Dynamic Programming to optimize recursive solutions and reduce computation time.
-2. Helps find correction levels in stock trading.
-3. Used to create visually pleasing proportions through the Golden Ratio (≈1.618), which is derived from Fibonacci numbers
-4. Seen in flower petals, pinecones, sunflowers, and shell spirals, where the arrangement follows Fibonacci patterns for optimal growth.
+   ```
+   prev = 0
+   curr = 1
+   ```
+3. Repeat from `i = 2` to `n`:
 
+   * `next = prev + curr`
+   * `prev = curr`
+   * `curr = next`
+4. Return `curr` (which becomes `F(n)`).
+
+This is much faster and memory-efficient.
+
+---
+
+## 🔸 Example Dry Run (Iterative)
+
+For `n = 6`:
+
+| i | prev | curr | next | Output so far |
+| - | ---- | ---- | ---- | ------------- |
+| 0 | -    | -    | -    | 0             |
+| 1 | -    | -    | -    | 0 1           |
+| 2 | 0    | 1    | 1    | 0 1 1         |
+| 3 | 1    | 1    | 2    | 0 1 1 2       |
+| 4 | 1    | 2    | 3    | 0 1 1 2 3     |
+| 5 | 2    | 3    | 5    | 0 1 1 2 3 5   |
+
+Output:
+👉 `0 1 1 2 3 5`
+
+---
+
+## 🔸 Complexity Analysis
+
+| Method        | Time Complexity | Space Complexity | Remarks                                                  |
+| ------------- | --------------- | ---------------- | -------------------------------------------------------- |
+| **Recursive** | O(2ⁿ)           | O(n)             | Very slow; recalculates the same subproblems many times. |
+| **Iterative** | O(n)            | O(1)             | Efficient and fast; uses only a few variables.           |
+
+---
+
+## 🔸 When to Use Which
+
+| Method        | Advantages                         | Disadvantages                               |
+| ------------- | ---------------------------------- | ------------------------------------------- |
+| **Recursive** | Easy to understand, elegant logic. | Very slow for large `n` (exponential time). |
+| **Iterative** | Fast, memory-efficient.            | Slightly longer code, less elegant.         |
+
+---
+
+## 🔸 Viva / Oral Questions You Might Get
+
+Absolutely ✅ — let’s prepare you **viva-style** so you can confidently answer anything the external asks.
+Here are the **most likely oral/viva questions** (with crisp, exam-perfect answers) for your **Fibonacci (Recursive & Non-Recursive)** practical.
+
+---
+
+Nice — I’ll walk you through the **exact code you pasted, line-by-line**, assuming you’re brand new to Java. I’ll explain what every keyword, type, line and block means, why it’s there, and any exam pitfalls to watch for.
+
+I’ll paste each relevant snippet (short) and then explain it in plain English.
+
+# Full file header + imports
+
+```java
+// Program to calculate Fibonacci numbers using
+// both recursive and non-recursive methods.
+
+import java.util.Scanner;
+```
+
+* `// ...` — single-line comment. Anything after `//` is ignored by the compiler; it’s for humans.
+* `import java.util.Scanner;` — tells Java we want to use the `Scanner` class (which reads input typed by the user). `java.util` is the package (like a folder). Without this, `Scanner` would be unknown.
+
+# Class declaration
+
+```java
+public class Fibonacci {
+```
+
+* `public` — access modifier. Means the class is visible to everything. (For exam code this is standard.)
+* `class` — defines a class. In Java, all code must be inside a class.
+* `Fibonacci` — the class name. IMPORTANT: the filename must be `Fibonacci.java` (case-sensitive) because the class is public.
+
+# Recursive method (function)
+
+```java
+    // Recursive method
+    static int recursiveFibonacci(int n) {
+        if (n <= 1)
+            return n;
+        return recursiveFibonacci(n - 1) + recursiveFibonacci(n - 2);
+    }
+```
+
+Line-by-line:
+
+* `// Recursive method` — comment describing the method.
+* `static` — means the method belongs to the class itself, not to an object instance. This lets `main` call it directly as `recursiveFibonacci(...)` without creating an object.
+* `int` — return type. This method returns an integer.
+* `recursiveFibonacci` — name of the method.
+* `(int n)` — parameter list. The method takes one integer input, called `n`.
+* `{` — start of method body.
+* `if (n <= 1)` — checks base case: when `n` is `0` or `1`.
+* `return n;` — if `n` is 0 or 1, return `n` immediately (Fib(0)=0, Fib(1)=1).
+* `return recursiveFibonacci(n - 1) + recursiveFibonacci(n - 2);` — recursive step: call the same method twice to compute `F(n-1)` and `F(n-2)`, then add them. This is the mathematical definition.
+* `}` — end of method.
+
+Notes / important points:
+
+* Every recursive call creates a new stack frame (a new set of local variables and return address). For large `n` this leads to many calls and can be very slow.
+* This method returns `int`. For moderately large `n` (e.g., >46) `int` will overflow (because Fib numbers grow fast). If you expect bigger values, use `long` or `BigInteger`.
+
+# Iterative (non-recursive) method
+
+```java
+    // Non-recursive (Iterative) method
+    static int iterativeFibonacci(int n) {
+        if (n <= 1)
+            return n;
+
+        int prev = 0, curr = 1, next = 0;
+        for (int i = 2; i <= n; i++) {
+            next = prev + curr;
+            prev = curr;
+            curr = next;
+        }
+        return curr;
+    }
+```
+
+Line-by-line:
+
+* `// Non-recursive (Iterative) method` — comment.
+* `static int iterativeFibonacci(int n)` — method signature: static, returns `int`, named `iterativeFibonacci`, takes `int n`.
+* `if (n <= 1) return n;` — same base handling: `n=0` or `1` returns `n`.
+* `int prev = 0, curr = 1, next = 0;` — declare three integer variables:
+
+  * `prev` stores F(i-2),
+  * `curr` stores F(i-1),
+  * `next` will hold F(i) temporarily.
+* `for (int i = 2; i <= n; i++) {` — a loop from `i=2` up to `n` (inclusive). We start at 2 because F(0) and F(1) are known.
+* `next = prev + curr;` — compute the next Fibonacci number.
+* `prev = curr;` — shift `prev` forward to the previous `curr`.
+* `curr = next;` — set current to the newly computed value.
+* `}` — end of loop.
+* `return curr;` — after the loop, `curr` holds `F(n)`, so return it.
+
+Notes:
+
+* This uses constant memory — only 3 variables — so it’s very efficient.
+* Also beware of integer overflow here too.
+
+# Main method (program entry point)
+
+```java
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter n: ");
+        int n = sc.nextInt();
+
+        System.out.println("\nUsing Recursive Method:");
+        for (int i = 0; i < n; i++)
+            System.out.print(recursiveFibonacci(i) + " ");
+
+        System.out.println("\n\nUsing Iterative Method:");
+        for (int i = 0; i < n; i++)
+            System.out.print(iterativeFibonacci(i) + " ");
+
+        sc.close();
+    }
+}
+```
+
+Line-by-line:
+
+* `public static void main(String[] args)` — **the program entry point**. When you run `java Fibonacci`, JVM looks for this method.
+
+  * `public` — visible to JVM.
+  * `static` — JVM can call it without creating an object.
+  * `void` — does not return a value.
+  * `String[] args` — command-line arguments (not used here).
+* `{` — start of main body.
+* `Scanner sc = new Scanner(System.in);`
+
+  * Creates a `Scanner` object named `sc`.
+  * `System.in` is the standard input stream (keyboard).
+  * `Scanner` gives methods like `nextInt()` to read typed values.
+* `System.out.print("Enter n: ");`
+
+  * Prints the prompt to the console WITHOUT newline (cursor remains at end).
+  * `System.out` is standard output.
+* `int n = sc.nextInt();`
+
+  * Reads the next integer typed by user and stores it in variable `n`.
+  * If user types a non-integer, Java throws `InputMismatchException`. (Exam tip: type numbers carefully.)
+* `System.out.println("\nUsing Recursive Method:");`
+
+  * Prints a newline `\n` and the label, then moves to new line.
+* `for (int i = 0; i < n; i++)`
+
+  * A `for` loop that runs from `i = 0` to `i = n-1`. It will print the first `n` Fibonacci numbers (0..n-1).
+  * Note: there are no braces `{}` after the `for`. In Java, a single statement immediately after a loop is executed on each iteration. Here that single statement is the next line.
+* `System.out.print(recursiveFibonacci(i) + " ");`
+
+  * Calls the recursive method for each `i` and prints the number followed by a space. No newline at the end.
+* `System.out.println("\n\nUsing Iterative Method:");`
+
+  * Prints two newlines then the label for the iterative output.
+* `for (int i = 0; i < n; i++)`
+
+  * Same loop structure to print using the iterative method.
+* `System.out.print(iterativeFibonacci(i) + " ");`
+
+  * Calls iterative method and prints result.
+* `sc.close();`
+
+  * Closes the `Scanner` and releases the input resource. Good practice.
+* `}` — end of `main`.
+* `}` — end of `class Fibonacci`.
+
+# Extra beginner-friendly explanations & exam tips
+
+* **Why `static` on methods?**
+  `main` is static. A static method can only directly call other static methods. Marking the Fibonacci methods static lets `main` call them without creating a `new Fibonacci()` object. For exam code this is simplest.
+
+* **Why `int` and not `Integer`?**
+  `int` is a primitive number type (fast, memory-efficient). `Integer` is an object wrapper class; not needed here.
+
+* **Why do we print `i` from 0 to n-1?**
+  The loops print the first `n` Fibonacci numbers: indexes `0` through `n-1`. If the examiner expects to show the `n`th Fibonacci number only, you'd call `System.out.println(iterativeFibonacci(n));`
+
+* **What happens if user types a negative `n`?**
+  Current code will treat negatives weirdly: `for (int i=0; i<n; i++)` won’t run; both sections print nothing. You could add a check:
+
+  ```java
+  if (n < 0) {
+      System.out.println("Please enter non-negative integer");
+      return;
+  }
+  ```
+
+* **Integer overflow:**
+  `int` holds up to ~2 billion. Fibonacci passes that around `n=47` (Fib(47) > 2,147,483,647). In viva, mention that for large `n` you should use `long` (up to 9e18) or `BigInteger` for arbitrary precision.
+
+* **Stack overflow risk (recursive):**
+  Recursive method depth is `n`, so for huge `n` you can get `StackOverflowError`. But practical exam inputs are usually small.
+
+* **Performance note:**
+  Recursive approach is **exponential time** — very slow for `n > 40`. Iterative approach is **linear time**, so use iterative for large `n`.
+
+# Memory of the code (how to re-write from scratch in exam)
+
+If you forget exact syntax, remember the structure:
+
+1. `import java.util.Scanner;`
+2. `public class Fibonacci {`
+3. `static int recursiveFibonacci(int n) { if (n<=1) return n; return recursiveFibonacci(n-1) + recursiveFibonacci(n-2); }`
+4. `static int iterativeFibonacci(int n) { if (n<=1) return n; int prev=0,curr=1,next; for (int i=2; i<=n;i++) { next=prev+curr; prev=curr; curr=next; } return curr; }`
+5. `public static void main(String[] args) { Scanner sc=new Scanner(System.in); int n=sc.nextInt(); ... sc.close(); }`
+6. `}`
+
+# Quick common mistakes to avoid (useful in exam)
+
+* File name not matching `public class` name → `Fibonacci.java` required.
+* Forgetting `static` on methods (then `main` cannot call them directly).
+* Using `nextLine()` vs `nextInt()` confusion — after `nextInt()` the newline remains; but you’re not using `nextLine()` in this program so it’s fine.
+* Not handling input errors — type carefully.
+* Integer overflow — don’t claim correctness for very large `n` without mentioning overflow.
+
+---
+
+If you want next:
+
+* Type **`next`** and I’ll go through **how to compile & run this exact file on an old Linux terminal** (commands, common errors and fixes).
+* Or ask a specific line that still confuses you and I’ll explain it even more simply.
