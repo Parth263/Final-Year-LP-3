@@ -139,16 +139,8 @@ Output:
 
 ---
 
-## 🔸 Viva / Oral Questions You Might Get
-
-Absolutely ✅ — let’s prepare you **viva-style** so you can confidently answer anything the external asks.
-Here are the **most likely oral/viva questions** (with crisp, exam-perfect answers) for your **Fibonacci (Recursive & Non-Recursive)** practical.
-
+code explanation ------------------------------------
 ---
-
-Nice — I’ll walk you through the **exact code you pasted, line-by-line**, assuming you’re brand new to Java. I’ll explain what every keyword, type, line and block means, why it’s there, and any exam pitfalls to watch for.
-
-I’ll paste each relevant snippet (short) and then explain it in plain English.
 
 # Full file header + imports
 

@@ -1,63 +1,150 @@
-javac FractionalKnapsack.java
-java FractionalKnapsack
+Excellent 👏 we’re now at the **Fractional Knapsack problem**, one of the easiest yet most classic **Greedy algorithm** problems in DAA.
 
-why 2 class files ?
-| File                        | What it Represents                 | Created Because Of                   |
-| --------------------------- | ---------------------------------- | ------------------------------------ |
-| `Item.class`                | Compiled bytecode for `Item` class | Separate top-level class             |
-| `UserInputKnapsack.class`   | Main class with `main()`           | Your public class                    |
+Let’s go step by step exactly like before — I’ll first explain **theory in a beginner-friendly way** (so you can write it in your file + handle viva confidently),
+and once you say “next,” we’ll do a **code explanation + output walkthrough** for whichever version you want to run.
 
+---
 
-| Items | Weight | Value | Ratio (Value/Weight) |
-| ----- | ------ | ----- | -------------------- |
-| 1     | 5      | 30    | 6                    |
-| 2     | 10     | 40    | 4                    |
-| 3     | 15     | 45    | 3                    |
-| 4     | 22     | 77    | 3.5                  |
-| 5     | 25     | 90    | 3.6                  |
+# 🧠 Fractional Knapsack Problem — Easy Theory
 
-sort all items in decreasing value of their value / weight ratio 
-i.e 6,4,3.6,3.5,3
+---
 
+## 🧩 What is the Knapsack problem?
 
-| Step | Item | Weight taken     | Remaining capacity (rem) | Value added       | Total value |
-| ---- | ---- | ---------------- | ------------------------ | ----------------- | ----------- |
-| 1    | I1   | 5                | 60 − 5 = 55              | 30                | 30          |
-| 2    | I2   | 10               | 55 − 10 = 45             | 40                | 70          |
-| 3    | I5   | 25               | 45 − 25 = 20             | 90                | 160         |
-| 4    | I4   | **20 (partial)** | 20 − 20 = **0**          | (20/22) × 77 ≈ 70 | 230         |
+Imagine you are a thief with a **bag (knapsack)** that can carry only a limited weight (say 60 kg).
+There are several items available, each with:
 
+* a **value** (profit)
+* a **weight**
 
-| Term          | Meaning                       | Final value |
-| ------------- | ----------------------------- | ----------- |
-| `capacity`    | total weight the bag can hold | 60 kg       |
-| `rem`         | how much weight space is left | 0 kg        |
-| `total value` | total profit/value inside bag | 230 units   |
+Your goal:
+👉 **maximize the total value you can carry**,
+but you cannot exceed the total weight capacity of the bag.
 
+---
 
-What happened in the last step:
-1. The knapsack had 20 kg of space left.
+## 🎒 Two types of Knapsack problems
 
-2. The next item (I4) weighed 22 kg → too heavy to fit completely.
+| Type                    | Can we take fractions of items?          | Method               | Example                           |
+| ----------------------- | ---------------------------------------- | -------------------- | --------------------------------- |
+| **0/1 Knapsack**        | ❌ No (either take full item or leave it) | Dynamic Programming  | Take or skip items                |
+| **Fractional Knapsack** | ✅ Yes (can take parts of items)          | **Greedy Algorithm** | You can take half or ¼ of an item |
 
-3. You took only 20 kg out of 22 kg (that’s 20/22 fraction of it).
+We are solving the **Fractional Knapsack** version here.
 
-4. After adding those 20 kg, the knapsack is completely full,
-   so remaining capacity (rem) becomes 0 kg.
+---
 
-5. But you still earned fractional value: (20/22) × 77 ≈ 70 units.
+## ⚙️ What does “Greedy Method” mean here?
 
+It means:
+At each step, **take the item that gives the maximum value per weight unit** (called *value/weight ratio*).
+You keep doing this until your bag is full.
 
-// ratio is the “value per unit weight” — the greedy metric used for fractional knapsack
-//The goal of the fractional knapsack is to fill the bag completely (60 kg here)
-while maximizing total value by choosing items in order of their value-to-weight ratio.
-//That’s the greedy strategy — always take the “most valuable per kg” item next until there’s no space left.
+So the greedy rule is:
 
+[
+\text{Pick items in descending order of } \frac{\text{value}}{\text{weight}}
+]
 
-| Operation               | Complexity                  |
-| ----------------------- | --------------------------- |
-| Sorting items           | O(n log n)                  |
-| Iterating through items | O(n)                        |
-| **Total Time**          | O(n log n)                  |
-| **Space**               | O(1) (in-place sorting)     |
+---
 
+## 💡 Example (simple to understand)
+
+Suppose we have:
+
+| Item | Value | Weight | Value/Weight |
+| ---- | ----- | ------ | ------------ |
+| 1    | 60    | 10     | 6            |
+| 2    | 100   | 20     | 5            |
+| 3    | 120   | 30     | 4            |
+
+Knapsack capacity = 50
+
+### Step 1: Sort by ratio (v/w)
+
+Order becomes:
+Item 1 → 6, Item 2 → 5, Item 3 → 4
+
+### Step 2: Take greedily
+
+| Step                | What we take                           | Remaining capacity | Total value               |
+| ------------------- | -------------------------------------- | ------------------ | ------------------------- |
+| Take item 1 (10 kg) | Full                                   | 40                 | 60                        |
+| Take item 2 (20 kg) | Full                                   | 20                 | 160                       |
+| Take item 3 (30 kg) | Take 20 kg out of 30 kg (2/3 fraction) | 0                  | 160 + 120 × (20/30) = 240 |
+
+✅ **Maximum Value = 240**
+
+---
+
+## 🧮 Algorithm (step-by-step summary)
+
+1. **Input:** List of `n` items, each with `value` and `weight`, and knapsack capacity `W`.
+2. **Compute ratio:** For each item, find `ratio = value / weight`.
+3. **Sort items** in **descending order** by ratio.
+4. **Initialize** `totalValue = 0`.
+5. For each item:
+
+   * If item fits completely (`weight ≤ remaining capacity`)
+     → take full item.
+   * Else
+     → take only the fraction that fits (`value × (remaining capacity / weight)`).
+   * Stop when capacity = 0.
+6. **Output totalValue** as the maximum profit.
+
+---
+
+## ⏱️ Time & Space Complexity
+
+| Step         | Time                             | Reason                    |
+| ------------ | -------------------------------- | ------------------------- |
+| Sorting      | O(n log n)                       | Sort items by ratio       |
+| Taking items | O(n)                             | One pass through items    |
+| **Total**    | **O(n log n)**                   | Dominated by sort         |
+| **Space**    | **O(1)** (excluding input array) | Only a few variables used |
+
+---
+
+## 🧠 Why it’s Greedy & Optimal
+
+* It’s greedy because at every step we make a **locally best choice** (highest value/weight ratio).
+* For this problem, greedy gives a **globally optimal** solution (unlike 0/1 Knapsack where it doesn’t always work).
+
+---
+
+## 🎯 Viva / Oral Questions
+
+| Question                                                    | Short Answer                                                             |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| What is the difference between 0/1 and fractional knapsack? | In fractional we can take parts of items; in 0/1 we cannot.              |
+| What is the greedy choice property?                         | Choosing the highest value-to-weight ratio first.                        |
+| What is the time complexity?                                | O(n log n)                                                               |
+| Why sorting is used?                                        | To arrange items by descending ratio so we can pick the best ones first. |
+| Can greedy give optimal solution for 0/1 knapsack?          | No, only for fractional.                                                 |
+| What happens if two items have same ratio?                  | You can take either first — total value will be same.                    |
+
+---
+
+✅ **Summary you can write in your journal file**
+
+**Aim:**
+To solve the fractional knapsack problem using the greedy method.
+
+**Algorithm:**
+
+1. Compute value/weight ratio for each item.
+2. Sort items in decreasing order of ratio.
+3. Take items until capacity allows; if remaining capacity < item weight, take fractional part.
+4. Calculate total value.
+
+**Output:**
+Maximum value that can be obtained.
+
+**Complexity:**
+Time = O(n log n), Space = O(1).
+
+---
+
+Now you’re ready to explain the logic confidently.
+
+When you’re ready, type **“next”** and I’ll explain both code versions line-by-line (the static example + the user input one), show you which one to run, and walk you through the sample output.

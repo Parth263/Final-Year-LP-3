@@ -1,0 +1,121 @@
+Sure — let’s break this down clearly so that if the **vigilator asks you**, you can confidently explain it in **your own words** 👇
+
+---
+
+### 🎯 **Concept Recap: N-Queens Problem**
+
+The **N-Queens problem** asks:
+
+> “How can we place N queens on an N×N chessboard so that no two queens attack each other?”
+
+Queens attack in **rows, columns, and diagonals**, so the challenge is to place them so that none share these.
+
+---
+
+### 🧠 **This Specific Version (with Fixed Queen)**
+
+Your program is a **modified N-Queens solution**:
+
+* It lets the user **fix one queen’s position** (a queen that must stay on the board at that exact row and column).
+* Then it uses **backtracking** to place the rest safely.
+
+---
+
+### ⚙️ **Step-by-Step Working**
+
+1. **User Input:**
+
+   * `N`: size of the board
+   * `fixedRow` and `fixedCol`: position where one queen is fixed
+
+2. **Initialization:**
+
+   * The board is a 2D array of `0`s (empty cells).
+   * The fixed position is set to `1` (queen placed).
+
+3. **Backtracking begins with `solveNQueens(0)`**
+
+   * It tries to place queens row by row.
+   * If it reaches the fixed row, it **skips placing** (since that queen is already fixed).
+   * For each cell `(row, col)`:
+
+     * It checks if placing a queen there is **safe** using the `isSafe()` method.
+     * If safe → it places the queen (`1`), then recursively tries to solve the next row.
+     * If not possible → it **backtracks** (removes the queen and tries next column).
+
+4. **Base Case:**
+
+   * When `row == N`, it means all queens are placed → **solution found**.
+
+5. **Output:**
+
+   * The final 2D matrix (board) is printed.
+   * `1` = queen placed
+   * `0` = empty cell
+
+---
+
+### 🧩 **Example Output and Explanation**
+
+Let’s say you input:
+
+```
+Enter size of board (N): 4
+Enter fixed queen row (1-based): 2
+Enter fixed queen column (1-based): 3
+```
+
+That means:
+
+* N = 4
+* Fixed queen at row = 1 (index 1), column = 2 (index 2)
+  → placed at position (2,3) visually.
+
+Output might be something like:
+
+```
+0 1 0 0
+0 0 0 1
+1 0 0 0
+0 0 1 0
+```
+
+#### How to explain it:
+
+* Each `1` represents a queen.
+* There are **4 queens** (since N=4).
+* No two queens are in the same **row**, **column**, or **diagonal**.
+* The queen at `(2,3)` (your fixed one) is part of the valid configuration.
+* The algorithm tried several combinations until it found one that satisfied all constraints.
+
+---
+
+### 💡 **If the Vigilator Asks You “What Happens Internally?”**
+
+Say this:
+
+> “The program uses **backtracking**, which means it tries to place queens row by row. If it reaches a point where no safe column is found in a row, it goes back and moves the previous queen to the next possible safe position. It repeats this until a complete valid arrangement is found. Since one queen is fixed, it skips that row and continues solving for others.”
+
+---
+
+### 🧾 **If No Solution Exists**
+
+If you fix the queen in a position that makes the problem unsolvable (for example, a corner in small boards like 4×4), you’ll get:
+
+```
+No solution exists for this placement.
+```
+
+This means:
+
+> “There’s no way to place all queens safely without them attacking each other given that fixed position.”
+
+---
+
+### ✅ **In Short (for quick oral answer):**
+
+> “This code solves the N-Queens problem using backtracking, but with one queen fixed in a given position. It places queens row by row, checking for safety in columns and diagonals. If a conflict occurs, it backtracks and tries another position. The output board shows 1 where queens are placed such that none attack each other.”
+
+---
+
+Would you like me to show a **specific input + output example** from this code (like N=4, fixed queen in a corner) and explain step-by-step how the algorithm reaches or fails to reach the solution? That’s the most common type of viva question.
